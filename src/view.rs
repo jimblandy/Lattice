@@ -1,14 +1,15 @@
-pub struct SizeWidthDynamicToContainer {
+pub struct SizeWidthDynamic {
    ratio: f64,
+   unit: String,
    dirty: bool
 }
-impl SizeWidthDynamicToContainer {
-   pub fn new(ratio: f64) -> SizeWidthDynamicToContainer {
-      SizeWidthDynamicToContainer { ratio:ratio, dirty: true }
+impl SizeWidthDynamic {
+   pub fn new(ratio: f64, unit: String) -> SizeWidthDynamicToContainer {
+      SizeWidthDynamic { ratio:ratio, unit:unit, dirty: true }
    }
    pub fn is(m: &Modifier) -> bool {
       match *m {
-         Modifier::SizeWidthDynamicToContainer(_) => { true }
+         Modifier::SizeWidthDynamic(_) => { true }
          _ => { false }
       }
    }
@@ -20,23 +21,31 @@ impl SizeWidthDynamicToContainer {
    }
    pub fn set_ratio(&mut self, ratio: f64) {
       self.ratio = ratio
+   }
+   pub fn unit(&self) -> &String {
+      &self.unit
+   }
+   pub fn set_unit(&mut self, unit: String) {
+      self.unit = unit;
+      self.dirty = true;
    }
    pub fn clean(&mut self) {
       self.dirty = false;
    }
 }
 
-pub struct SizeHeightDynamicToContainer {
+pub struct SizeHeightDynamic {
    ratio: f64,
+   unit: String,
    dirty: bool
 }
-impl SizeHeightDynamicToContainer {
-   pub fn new(ratio: f64) -> SizeHeightDynamicToContainer {
-      SizeHeightDynamicToContainer { ratio:ratio, dirty: true }
+impl SizeHeightDynamic {
+   pub fn new(ratio: f64, unit: String) -> SizeHeightDynamic {
+      SizeHeightDynamic { ratio:ratio, unit:unit, dirty: true }
    }
    pub fn is(m: &Modifier) -> bool {
       match *m {
-         Modifier::SizeHeightDynamicToContainer(_) => { true }
+         Modifier::SizeHeightDynamic(_) => { true }
          _ => { false }
       }
    }
@@ -48,6 +57,13 @@ impl SizeHeightDynamicToContainer {
    }
    pub fn set_ratio(&mut self, ratio: f64) {
       self.ratio = ratio
+   }
+   pub fn unit(&self) -> &String {
+      &self.unit
+   }
+   pub fn set_unit(&mut self, unit: String) {
+      self.unit = unit;
+      self.dirty = true;
    }
    pub fn clean(&mut self) {
       self.dirty = false;
@@ -260,6 +276,6 @@ pub enum Component {
 }
 pub enum Modifier {
    Translate(Translate),
-   SizeWidthDynamicToContainer(SizeWidthDynamicToContainer),
-   SizeHeightDynamicToContainer(SizeHeightDynamicToContainer),
+   SizeWidthDynamic(SizeWidthDynamic),
+   SizeHeightDynamic(SizeHeightDynamic),
 }
