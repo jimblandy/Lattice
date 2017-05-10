@@ -1,3 +1,59 @@
+pub struct SizeWidthDynamicToContainer {
+   ratio: f64,
+   dirty: bool
+}
+impl SizeWidthDynamicToContainer {
+   pub fn new(ratio: f64) -> SizeWidthDynamicToContainer {
+      SizeWidthDynamicToContainer { ratio:ratio, dirty: true }
+   }
+   pub fn is(m: &Modifier) -> bool {
+      match *m {
+         Modifier::SizeWidthDynamicToContainer(_) => { true }
+         _ => { false }
+      }
+   }
+   pub fn is_not(m: &Modifier) -> bool {
+      !Translate::is(m)
+   }
+   pub fn ratio(&self) -> f64 {
+      self.ratio
+   }
+   pub fn set_ratio(&mut self, ratio: f64) {
+      self.ratio = ratio
+   }
+   pub fn clean(&mut self) {
+      self.dirty = false;
+   }
+}
+
+pub struct SizeHeightDynamicToContainer {
+   ratio: f64,
+   dirty: bool
+}
+impl SizeHeightDynamicToContainer {
+   pub fn new(ratio: f64) -> SizeHeightDynamicToContainer {
+      SizeHeightDynamicToContainer { ratio:ratio, dirty: true }
+   }
+   pub fn is(m: &Modifier) -> bool {
+      match *m {
+         Modifier::SizeHeightDynamicToContainer(_) => { true }
+         _ => { false }
+      }
+   }
+   pub fn is_not(m: &Modifier) -> bool {
+      !Translate::is(m)
+   }
+   pub fn ratio(&self) -> f64 {
+      self.ratio
+   }
+   pub fn set_ratio(&mut self, ratio: f64) {
+      self.ratio = ratio
+   }
+   pub fn clean(&mut self) {
+      self.dirty = false;
+   }
+}
+
 pub struct Translate {
    dx: f64,
    dy: f64,
@@ -204,5 +260,6 @@ pub enum Component {
 }
 pub enum Modifier {
    Translate(Translate),
-   Nul
+   SizeWidthDynamicToContainer(SizeWidthDynamicToContainer),
+   SizeHeightDynamicToContainer(SizeHeightDynamicToContainer),
 }
