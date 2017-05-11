@@ -1,11 +1,10 @@
 pub struct SizeWidthDynamic {
    ratio: f64,
    unit: String,
-   dirty: bool
 }
 impl SizeWidthDynamic {
    pub fn new(ratio: f64, unit: String) -> SizeWidthDynamic {
-      SizeWidthDynamic { ratio:ratio, unit:unit, dirty: true }
+      SizeWidthDynamic { ratio:ratio, unit:unit }
    }
    pub fn is(m: &Modifier) -> bool {
       match *m {
@@ -27,21 +26,16 @@ impl SizeWidthDynamic {
    }
    pub fn set_unit(&mut self, unit: String) {
       self.unit = unit;
-      self.dirty = true;
-   }
-   pub fn clean(&mut self) {
-      self.dirty = false;
    }
 }
 
 pub struct SizeHeightDynamic {
    ratio: f64,
    unit: String,
-   dirty: bool
 }
 impl SizeHeightDynamic {
    pub fn new(ratio: f64, unit: String) -> SizeHeightDynamic {
-      SizeHeightDynamic { ratio:ratio, unit:unit, dirty: true }
+      SizeHeightDynamic { ratio:ratio, unit:unit }
    }
    pub fn is(m: &Modifier) -> bool {
       match *m {
@@ -63,21 +57,16 @@ impl SizeHeightDynamic {
    }
    pub fn set_unit(&mut self, unit: String) {
       self.unit = unit;
-      self.dirty = true;
-   }
-   pub fn clean(&mut self) {
-      self.dirty = false;
    }
 }
 
 pub struct Translate {
    dx: f64,
    dy: f64,
-   dirty: bool
 }
 impl Translate {
    pub fn new(dx: f64, dy: f64) -> Translate {
-      Translate { dx:dx, dy:dy,  dirty: true }
+      Translate { dx:dx, dy:dy }
    }
    pub fn is(m: &Modifier) -> bool {
       match *m {
@@ -93,28 +82,22 @@ impl Translate {
    }
    pub fn set_dx(&mut self, dx: f64) {
       self.dx = dx;
-      self.dirty = true;
    }
    pub fn dy(&self) -> f64 {
       self.dy
    }
    pub fn set_dy(&mut self, dy: f64) {
       self.dy = dy;
-      self.dirty = true;
-   }
-   pub fn clean(&mut self) {
-      self.dirty = false
    }
 }
 
 pub struct Font {
    name: String,
    modifiers: Vec<Modifier>,
-   dirty: bool
 }
 impl Font {
    pub fn new(name: String) -> Font {
-      Font { name: name, modifiers:Vec::new(), dirty: true }
+      Font { name: name, modifiers:Vec::new() }
    }
    pub fn name(&self) -> &String {
       &self.name
@@ -125,21 +108,16 @@ impl Font {
    }
    pub fn set_name(&mut self, name: String) {
       self.name = name;
-      self.dirty = true;
-   }
-   pub fn clean(&mut self) {
-      self.dirty = false
    }
 }
 
 pub struct Image {
    name: String,
    modifiers: Vec<Modifier>,
-   dirty: bool
 }
 impl Image {
    pub fn new(name: String) -> Image {
-      Image { name: name, modifiers:Vec::new(), dirty: true }
+      Image { name: name, modifiers:Vec::new() }
    }
    pub fn translate(&mut self, dx: f64, dy: f64) {
       self.modifiers.retain(Translate::is_not);
@@ -150,21 +128,16 @@ impl Image {
    }
    pub fn set_name(&mut self, name: String) {
       self.name = name;
-      self.dirty = true;
-   }
-   pub fn clean(&mut self) {
-      self.dirty = false
    }
 }
 
 pub struct Text {
    content: String,
    modifiers: Vec<Modifier>,
-   dirty: bool
 }
 impl Text {
    pub fn new(cs: String) -> Text {
-      Text { content: cs, modifiers:Vec::new(), dirty: true }
+      Text { content: cs, modifiers:Vec::new() }
    }
    pub fn translate(&mut self, dx: f64, dy: f64) {
       self.modifiers.retain(Translate::is_not);
@@ -175,10 +148,6 @@ impl Text {
    }
    pub fn set_content(&mut self, content: String) {
       self.content = content;
-      self.dirty = true;
-   }
-   pub fn clean(&mut self) {
-      self.dirty = false
    }
 }
 
@@ -186,11 +155,10 @@ pub struct Rectangle {
    height: f64,
    width: f64,
    modifiers: Vec<Modifier>,
-   dirty: bool
 }
 impl Rectangle {
    pub fn new(w: f64, h: f64) -> Rectangle {
-      Rectangle { width:w, height:h, modifiers:Vec::new(), dirty:true }
+      Rectangle { width:w, height:h, modifiers:Vec::new() }
    }
    pub fn translate(&mut self, dx: f64, dy: f64) {
       self.modifiers.retain(Translate::is_not);
@@ -204,25 +172,19 @@ impl Rectangle {
    }
    pub fn set_width(&mut self, w: f64) {
       self.width = w;
-      self.dirty = true;
    }
    pub fn set_height(&mut self, h: f64) {
       self.height = h;
-      self.dirty = true;
-   }
-   pub fn clean(&mut self) {
-      self.dirty = false;
    }
 }
 
 pub struct Square {
    width: f64,
    modifiers: Vec<Modifier>,
-   dirty: bool
 }
 impl Square {
    pub fn new(w: f64) -> Square {
-      Square { width:w, modifiers:Vec::new(), dirty:true }
+      Square { width:w, modifiers:Vec::new() }
    }
    pub fn translate(&mut self, dx: f64, dy: f64) {
       self.modifiers.retain(Translate::is_not);
@@ -233,21 +195,16 @@ impl Square {
    }
    pub fn set_width(&mut self, w: f64) {
       self.width = w;
-      self.dirty = true;
-   }
-   pub fn clean(&mut self) {
-      self.dirty = false;
    }
 }
 
 pub struct Circle {
    radius: f64,
    modifiers: Vec<Modifier>,
-   dirty: bool
 }
 impl Circle {
    pub fn new(r: f64) -> Circle {
-      Circle { radius:r, modifiers:Vec::new(), dirty:true }
+      Circle { radius:r, modifiers:Vec::new() }
    }
    pub fn translate(&mut self, dx: f64, dy: f64) {
       self.modifiers.retain(Translate::is_not);
@@ -258,10 +215,6 @@ impl Circle {
    }
    pub fn set_radius(&mut self, r: f64) {
       self.radius = r;
-      self.dirty = true;
-   }
-   pub fn clean(&mut self) {
-      self.dirty = false;
    }
 }
 
