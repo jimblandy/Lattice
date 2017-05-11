@@ -4,7 +4,7 @@ pub struct SizeWidthDynamic {
    dirty: bool
 }
 impl SizeWidthDynamic {
-   pub fn new(ratio: f64, unit: String) -> SizeWidthDynamicToContainer {
+   pub fn new(ratio: f64, unit: String) -> SizeWidthDynamic {
       SizeWidthDynamic { ratio:ratio, unit:unit, dirty: true }
    }
    pub fn is(m: &Modifier) -> bool {
