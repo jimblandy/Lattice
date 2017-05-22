@@ -6,7 +6,7 @@ use self::sdl2::pixels::Color;
 use self::sdl2::event::Event;
 use self::sdl2::keyboard::Keycode;
 
-struct Window {
+pub struct Window {
    title: String,
    fullscreen: bool
 }
