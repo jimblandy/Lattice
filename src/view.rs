@@ -232,3 +232,6 @@ pub enum Modifier {
    SizeWidthDynamic(SizeWidthDynamic),
    SizeHeightDynamic(SizeHeightDynamic),
 }
+
+pub struct View {
+}

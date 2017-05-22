@@ -1,6 +1,9 @@
 [package]
 name = "Lattice"
-version = "0.0.3"
+version = "0.1.1"
 authors = ["Andrew <andrew@subarctic.org>"]
 description = "A third generation window manager for FRP in Rust"
 license = "MIT"
+
+[dependencies]
+sdl2 = "0.30"
