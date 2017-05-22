@@ -53,7 +53,6 @@ impl Window {
             let mut window = canvas.window_mut();
             let position = window.position();
             let size = window.size();
-            println!("window position: {:?} size: {:?}", position, size);
             tick += 1;
          }
 
