@@ -30,10 +30,10 @@ impl Window {
       let sdl_context = sdl2::init().unwrap();
       let video_subsystem = sdl_context.video().unwrap();
 
-      let window = video_subsystem
-         .window(self.title.as_str(), 9999, 9999)
-         .build()
-         .unwrap();
+      let ref mut window = video_subsystem
+         .window(self.title.as_str(), 800, 600);
+      let ref mut window = if self.fullscreen { window.fullscreen().maximized() } else { window };
+      let window = window.build().unwrap();
 
       let mut canvas = window.into_canvas().present_vsync().build().unwrap();
 
