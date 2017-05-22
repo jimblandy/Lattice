@@ -235,3 +235,8 @@ pub enum Modifier {
 
 pub struct View {
 }
+impl View {
+   pub fn new() -> View {
+      View {}
+   }
+}

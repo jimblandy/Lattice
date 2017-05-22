@@ -18,11 +18,11 @@ impl Window {
          fullscreen: false
       }
    }
-   pub fn set_title(&mut self, title: String) {
-      self.title = title;
+   pub fn set_title(&mut self, title: String) -> &mut Window {
+      self.title = title; self
    }
-   pub fn set_fullscreen(&mut self, fullscreen: bool) {
-      self.fullscreen = fullscreen;
+   pub fn set_fullscreen(&mut self, fullscreen: bool) -> &mut Window {
+      self.fullscreen = fullscreen; self
    }
    pub fn start<F>(&self, cl: F) 
        where F: Fn(Events) -> View {
