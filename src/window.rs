@@ -32,8 +32,8 @@ impl Window {
    pub fn set_fullscreen(&mut self, fullscreen: bool) -> &mut Window {
       self.fullscreen = fullscreen; self
    }
-   pub fn with_assets(&mut self) {
-      self.assets = true;
+   pub fn with_assets(&mut self) -> &mut Window {
+      self.assets = true; self
    }
    pub fn start<F>(&self, cl: F) 
        where F: Fn(Events) -> View {
