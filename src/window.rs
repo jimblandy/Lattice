@@ -8,6 +8,9 @@ use self::sdl2::keyboard::Keycode;
 use self::sdl2::pixels::PixelFormatEnum;
 use self::sdl2::rect::Rect;
 
+extern crate image;
+use self::image::*;
+
 use std::path::Path;
 use std::fs::File;
 use std::io::{Write, Read, Seek, SeekFrom};
@@ -49,16 +52,21 @@ impl Window {
       let mut canvas = window.into_canvas().present_vsync().build().unwrap();
       let texture_creator = canvas.texture_creator();
 
-      let mut texture = texture_creator.create_texture_streaming(PixelFormatEnum::RGB24, 256, 256).unwrap();
+      let mut texture = texture_creator.create_texture_streaming(PixelFormatEnum::RGBA8888, 256, 256).unwrap();
       if self.assets {
-         let png = include_bytes!("assets/startscreen.png");
+         let buf = include_bytes!("assets/startscreen.png");
+         let png = image::load_from_memory_with_format(buf, image::ImageFormat::PNG).expect("Couldn't load image");
+         let (dx,dy) = png.dimensions();
+         texture = texture_creator.create_texture_streaming(PixelFormatEnum::RGBA8888, dx, dy).unwrap();
          texture.with_lock(None, |buffer: &mut [u8], pitch: usize| {
-            for y in 0..256 {
-               for x in 0..256 {
-                  let offset = y*pitch + x*3;
-                  buffer[offset] = x as u8;
-                  buffer[offset + 1] = y as u8;
-                  buffer[offset + 2] = 0;
+            for y in 0..dy {
+               for x in 0..dx {
+                  let offset = (y*(pitch as u32) + x*3) as usize;
+                  let p = png.get_pixel(x, y);
+                  buffer[offset] = p.data[0] as u8;
+                  buffer[offset + 1] = p.data[1] as u8;
+                  buffer[offset + 2] = p.data[2] as u8;
+                  buffer[offset + 3] = p.data[3] as u8;
                }
             }
          }).unwrap();
