@@ -55,18 +55,20 @@ impl Window {
       let mut texture = texture_creator.create_texture_streaming(PixelFormatEnum::RGBA8888, 256, 256).unwrap();
       if self.assets {
          let buf = include_bytes!("assets/startscreen.png");
-         let png = image::load_from_memory_with_format(buf, image::ImageFormat::PNG).expect("Couldn't load image");
+         let png = image::load_from_memory(buf).expect("Couldn't load image");
+         let png = png.as_rgba8().expect("cast to rgba8");
          let (dx,dy) = png.dimensions();
          texture = texture_creator.create_texture_streaming(PixelFormatEnum::RGBA8888, dx, dy).unwrap();
          texture.with_lock(None, |buffer: &mut [u8], pitch: usize| {
-            for y in 0..dy {
-               for x in 0..dx {
-                  let offset = (y*(pitch as u32) + x*3) as usize;
+            for x in 0..dx {
+               for y in 0..dy {
+                  let pitch = pitch as u32;
+                  let offset = (y*pitch + 4*x) as usize;
                   let p = png.get_pixel(x, y);
-                  buffer[offset] = p.data[0] as u8;
-                  buffer[offset + 1] = p.data[1] as u8;
-                  buffer[offset + 2] = p.data[2] as u8;
-                  buffer[offset + 3] = p.data[3] as u8;
+                  buffer[offset+0] = p.data[3] as u8;
+                  buffer[offset+1] = p.data[2] as u8;
+                  buffer[offset+2] = p.data[1] as u8;
+                  buffer[offset+3] = p.data[0] as u8;
                }
             }
          }).unwrap();
@@ -80,15 +82,9 @@ impl Window {
             match event {
                 Event::Quit { .. } |
                 Event::KeyDown { keycode: Some(Keycode::Escape), .. } => break 'running,
+                Event::KeyDown { keycode: Some(Keycode::Space), .. } => { println!("refocus"); }
                 _ => {}
             }
-         }
-
-         {
-            let mut window = canvas.window_mut();
-            let position = window.position();
-            let size = window.size();
-            tick += 1;
          }
 
          canvas.clear();
