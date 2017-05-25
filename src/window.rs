@@ -19,7 +19,7 @@ use std::io::{Write, Read, Seek, SeekFrom};
 pub struct Window {
    title: String,
    fullscreen: bool,
-   assets: bool
+   assets: Vec<(String,Vec<u8>)>
 }
 
 impl Window {
@@ -27,7 +27,7 @@ impl Window {
       Window {
          title: "Lattice Window".to_string(),
          fullscreen: false,
-         assets: false
+         assets: Vec::new()
       }
    }
    pub fn set_title(&mut self, title: String) -> &mut Window {
@@ -36,8 +36,8 @@ impl Window {
    pub fn set_fullscreen(&mut self, fullscreen: bool) -> &mut Window {
       self.fullscreen = fullscreen; self
    }
-   pub fn with_assets(&mut self) -> &mut Window {
-      self.assets = true; self
+   pub fn load_asset(&mut self, name: &str, bytes: &[u8]) {
+      self.assets.push((name.to_string(), bytes.to_vec()));
    }
    pub fn start<F>(&self, cl: F) 
        where F: Fn(Events) -> View {
@@ -56,10 +56,11 @@ impl Window {
       let mut canvas = window.into_canvas().present_vsync().build().unwrap();
       let texture_creator = canvas.texture_creator();
 
+    
       let mut textures = HashMap::new();
-      if self.assets {
+      for ai in 0..self.assets.len() {
          let mut texture = texture_creator.create_texture_streaming(PixelFormatEnum::RGBA8888, 256, 256).unwrap();
-         let buf = include_bytes!("assets/startscreen.png");
+         let (ref name,ref buf) = self.assets[ai];
          let png = image::load_from_memory(buf).expect("Couldn't load image");
          let png = png.as_rgba8().expect("cast to rgba8");
          let (dx,dy) = png.dimensions();
@@ -77,7 +78,7 @@ impl Window {
                }
             }
          }).unwrap();
-         textures.insert("startscreen.png", texture);
+         textures.insert(name.as_str(), texture);
       }
 
       let mut tick = 0;
