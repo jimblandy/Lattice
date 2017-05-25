@@ -23,15 +23,12 @@ pub struct Window {
 }
 
 impl Window {
-   pub fn new() -> Window {
+   pub fn new(title: &str) -> Window {
       Window {
-         title: "Lattice Window".to_string(),
+         title: title.to_owned(),
          fullscreen: false,
          assets: Vec::new()
       }
-   }
-   pub fn set_title(&mut self, title: String) -> &mut Window {
-      self.title = title; self
    }
    pub fn set_fullscreen(&mut self, fullscreen: bool) -> &mut Window {
       self.fullscreen = fullscreen; self
