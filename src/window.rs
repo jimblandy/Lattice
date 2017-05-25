@@ -99,7 +99,7 @@ impl Window {
          };
 
          canvas.clear();
-         let ref texture = textures.get("startscreen.png").expect("texture startscreen.png");
+         let ref texture = textures.get("assets/textures/background/home/startscreen.png").expect("texture startscreen.png");
          canvas.copy(&texture, None, Some(Rect::new(0, 0, w, h))).unwrap();
          canvas.present();
       }
