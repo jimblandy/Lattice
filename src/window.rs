@@ -44,9 +44,12 @@ impl Window {
       let sdl_context = sdl2::init().unwrap();
       let video_subsystem = sdl_context.video().unwrap();
 
-      let ref mut window = video_subsystem
-         .window(self.title.as_str(), 800, 600);
-      let ref mut window = if self.fullscreen { window.fullscreen().maximized() } else { window };
+      let ref mut window = video_subsystem.window(self.title.as_str(), 800, 600);
+      let ref mut window = window.resizable();
+      let ref mut window = window.maximized();
+      let ref mut window = window.input_grabbed();
+      let ref mut window = window.allow_highdpi();
+      let ref mut window = if self.fullscreen { window.fullscreen_desktop() } else { window };
       let window = window.build().unwrap();
 
       let mut canvas = window.into_canvas().present_vsync().build().unwrap();
@@ -82,7 +85,6 @@ impl Window {
             match event {
                 Event::Quit { .. } |
                 Event::KeyDown { keycode: Some(Keycode::Escape), .. } => break 'running,
-                Event::KeyDown { keycode: Some(Keycode::Space), .. } => { println!("refocus"); }
                 _ => {}
             }
          }
