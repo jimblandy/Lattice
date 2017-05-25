@@ -11,6 +11,7 @@ use self::sdl2::rect::Rect;
 extern crate image;
 use self::image::*;
 
+use std::collections::{HashMap};
 use std::path::Path;
 use std::fs::File;
 use std::io::{Write, Read, Seek, SeekFrom};
@@ -55,8 +56,9 @@ impl Window {
       let mut canvas = window.into_canvas().present_vsync().build().unwrap();
       let texture_creator = canvas.texture_creator();
 
-      let mut texture = texture_creator.create_texture_streaming(PixelFormatEnum::RGBA8888, 256, 256).unwrap();
+      let mut textures = HashMap::new();
       if self.assets {
+         let mut texture = texture_creator.create_texture_streaming(PixelFormatEnum::RGBA8888, 256, 256).unwrap();
          let buf = include_bytes!("assets/startscreen.png");
          let png = image::load_from_memory(buf).expect("Couldn't load image");
          let png = png.as_rgba8().expect("cast to rgba8");
@@ -75,6 +77,7 @@ impl Window {
                }
             }
          }).unwrap();
+         textures.insert("startscreen.png", texture);
       }
 
       let mut tick = 0;
@@ -89,10 +92,14 @@ impl Window {
             }
          }
 
+         let (w,h) = {
+            let mut window = canvas.window_mut();
+            window.drawable_size()
+         };
+
          canvas.clear();
-         canvas.copy(&texture, None, Some(Rect::new(100, 100, 256, 256))).unwrap();
-         canvas.copy_ex(&texture, None,
-            Some(Rect::new(450, 100, 256, 256)), 30.0, None, false, false).unwrap();
+         let ref texture = textures.get("startscreen.png").expect("texture startscreen.png");
+         canvas.copy(&texture, None, Some(Rect::new(0, 0, w, h))).unwrap();
          canvas.present();
       }
    }
