@@ -1,6 +1,7 @@
 pub mod view;
 pub mod events;
 pub mod window;
+pub mod build;
 
 #[macro_export]
 macro_rules! with_assets {
