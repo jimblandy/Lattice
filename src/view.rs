@@ -1,10 +1,10 @@
 pub struct SizeWidthDynamic {
-   ratio: f64,
+   scalar: f64,
    unit: String,
 }
 impl SizeWidthDynamic {
-   pub fn new(ratio: f64, unit: String) -> SizeWidthDynamic {
-      SizeWidthDynamic { ratio:ratio, unit:unit }
+   pub fn new(scalar: f64, unit: String) -> Modifier {
+      Modifier::SizeWidthDynamic(SizeWidthDynamic { scalar:scalar, unit:unit })
    }
    pub fn is(m: &Modifier) -> bool {
       match *m {
@@ -15,11 +15,11 @@ impl SizeWidthDynamic {
    pub fn is_not(m: &Modifier) -> bool {
       !Translate::is(m)
    }
-   pub fn ratio(&self) -> f64 {
-      self.ratio
+   pub fn scalar(&self) -> f64 {
+      self.scalar
    }
-   pub fn set_ratio(&mut self, ratio: f64) {
-      self.ratio = ratio
+   pub fn set_scalar(&mut self, scalar: f64) {
+      self.scalar = scalar
    }
    pub fn unit(&self) -> &String {
       &self.unit
@@ -30,12 +30,12 @@ impl SizeWidthDynamic {
 }
 
 pub struct SizeHeightDynamic {
-   ratio: f64,
+   scalar: f64,
    unit: String,
 }
 impl SizeHeightDynamic {
-   pub fn new(ratio: f64, unit: String) -> SizeHeightDynamic {
-      SizeHeightDynamic { ratio:ratio, unit:unit }
+   pub fn new(scalar: f64, unit: String) -> Modifier {
+      Modifier::SizeHeightDynamic(SizeHeightDynamic { scalar:scalar, unit:unit })
    }
    pub fn is(m: &Modifier) -> bool {
       match *m {
@@ -46,11 +46,11 @@ impl SizeHeightDynamic {
    pub fn is_not(m: &Modifier) -> bool {
       !Translate::is(m)
    }
-   pub fn ratio(&self) -> f64 {
-      self.ratio
+   pub fn scalar(&self) -> f64 {
+      self.scalar
    }
-   pub fn set_ratio(&mut self, ratio: f64) {
-      self.ratio = ratio
+   pub fn set_scalar(&mut self, scalar: f64) {
+      self.scalar = scalar
    }
    pub fn unit(&self) -> &String {
       &self.unit
@@ -65,8 +65,8 @@ pub struct Translate {
    dy: f64,
 }
 impl Translate {
-   pub fn new(dx: f64, dy: f64) -> Translate {
-      Translate { dx:dx, dy:dy }
+   pub fn new(dx: f64, dy: f64) -> Modifier {
+      Modifier::Translate(Translate { dx:dx, dy:dy })
    }
    pub fn is(m: &Modifier) -> bool {
       match *m {
@@ -96,15 +96,23 @@ pub struct Font {
    modifiers: Vec<Modifier>,
 }
 impl Font {
-   pub fn new(name: String) -> Font {
-      Font { name: name, modifiers:Vec::new() }
+   pub fn new(name: String) -> Component {
+      Component::Font(Font { name: name, modifiers:Vec::new() })
    }
    pub fn name(&self) -> &String {
       &self.name
    }
-   pub fn translate(&mut self, dx: f64, dy: f64) {
-      self.modifiers.retain(Translate::is_not);
-      self.modifiers.push(Modifier::Translate(Translate::new(dx, dy)));
+   pub fn translate(&mut self, dx: f64, dy: f64) -> &mut Font {
+      self.modifiers.push(Translate::new(dx, dy));
+      self
+   }
+   pub fn width(&mut self, scalar: f64, unit: &str) -> &mut Font {
+      self.modifiers.push(SizeWidthDynamic::new(scalar, unit.to_owned()));
+      self
+   }
+   pub fn height(&mut self, scalar: f64, unit: &str) -> &mut Font {
+      self.modifiers.push(SizeHeightDynamic::new(scalar, unit.to_owned()));
+      self
    }
    pub fn set_name(&mut self, name: String) {
       self.name = name;
@@ -116,12 +124,20 @@ pub struct Image {
    modifiers: Vec<Modifier>,
 }
 impl Image {
-   pub fn new(name: String) -> Image {
-      Image { name: name, modifiers:Vec::new() }
+   pub fn new(name: &str) -> Component {
+      Component::Image(Image { name: name.to_owned(), modifiers:Vec::new() })
    }
-   pub fn translate(&mut self, dx: f64, dy: f64) {
-      self.modifiers.retain(Translate::is_not);
-      self.modifiers.push(Modifier::Translate(Translate::new(dx, dy)));
+   pub fn translate(&mut self, dx: f64, dy: f64) -> &mut Image {
+      self.modifiers.push(Translate::new(dx, dy));
+      self
+   }
+   pub fn width(&mut self, scalar: f64, unit: &str) -> &mut Image {
+      self.modifiers.push(SizeWidthDynamic::new(scalar, unit.to_owned()));
+      self
+   }
+   pub fn height(&mut self, scalar: f64, unit: &str) -> &mut Image {
+      self.modifiers.push(SizeHeightDynamic::new(scalar, unit.to_owned()));
+      self
    }
    pub fn name(&self) -> &String {
       &self.name
@@ -136,12 +152,20 @@ pub struct Text {
    modifiers: Vec<Modifier>,
 }
 impl Text {
-   pub fn new(cs: String) -> Text {
-      Text { content: cs, modifiers:Vec::new() }
+   pub fn new(cs: String) -> Component {
+      Component::Text(Text { content: cs, modifiers:Vec::new() })
    }
-   pub fn translate(&mut self, dx: f64, dy: f64) {
-      self.modifiers.retain(Translate::is_not);
-      self.modifiers.push(Modifier::Translate(Translate::new(dx, dy)));
+   pub fn translate(&mut self, dx: f64, dy: f64) -> &mut Text {
+      self.modifiers.push(Translate::new(dx, dy));
+      self
+   }
+   pub fn width(&mut self, scalar: f64, unit: &str) -> &mut Text {
+      self.modifiers.push(SizeWidthDynamic::new(scalar, unit.to_owned()));
+      self
+   }
+   pub fn height(&mut self, scalar: f64, unit: &str) -> &mut Text {
+      self.modifiers.push(SizeHeightDynamic::new(scalar, unit.to_owned()));
+      self
    }
    pub fn content(&self) -> &String {
       &self.content
@@ -157,17 +181,25 @@ pub struct Rectangle {
    modifiers: Vec<Modifier>,
 }
 impl Rectangle {
-   pub fn new(w: f64, h: f64) -> Rectangle {
-      Rectangle { width:w, height:h, modifiers:Vec::new() }
+   pub fn new(w: f64, h: f64) -> Component {
+      Component::Rectangle(Rectangle { width:w, height:h, modifiers:Vec::new() })
    }
-   pub fn translate(&mut self, dx: f64, dy: f64) {
-      self.modifiers.retain(Translate::is_not);
-      self.modifiers.push(Modifier::Translate(Translate::new(dx, dy)));
+   pub fn translate(&mut self, dx: f64, dy: f64) -> &mut Rectangle {
+      self.modifiers.push(Translate::new(dx, dy));
+      self
    }
-   pub fn width(&self) -> f64 {
+   pub fn width(&mut self, scalar: f64, unit: &str) -> &mut Rectangle {
+      self.modifiers.push(SizeWidthDynamic::new(scalar, unit.to_owned()));
+      self
+   }
+   pub fn height(&mut self, scalar: f64, unit: &str) -> &mut Rectangle {
+      self.modifiers.push(SizeHeightDynamic::new(scalar, unit.to_owned()));
+      self
+   }
+   pub fn get_width(&self) -> f64 {
       self.width
    }
-   pub fn height(&self) -> f64 {
+   pub fn get_height(&self) -> f64 {
       self.height
    }
    pub fn set_width(&mut self, w: f64) {
@@ -183,14 +215,21 @@ pub struct Square {
    modifiers: Vec<Modifier>,
 }
 impl Square {
-   pub fn new(w: f64) -> Square {
-      Square { width:w, modifiers:Vec::new() }
+   pub fn new(w: f64) -> Component {
+      Component::Square(Square { width:w, modifiers:Vec::new() })
    }
    pub fn translate(&mut self, dx: f64, dy: f64) {
-      self.modifiers.retain(Translate::is_not);
-      self.modifiers.push(Modifier::Translate(Translate::new(dx, dy)));
+      self.modifiers.push(Translate::new(dx, dy));
    }
-   pub fn width(&self) -> f64 {
+   pub fn width(&mut self, scalar: f64, unit: &str) -> &mut Square {
+      self.modifiers.push(SizeWidthDynamic::new(scalar, unit.to_owned()));
+      self
+   }
+   pub fn height(&mut self, scalar: f64, unit: &str) -> &mut Square {
+      self.modifiers.push(SizeHeightDynamic::new(scalar, unit.to_owned()));
+      self
+   }
+   pub fn get_width(&self) -> f64 {
       self.width
    }
    pub fn set_width(&mut self, w: f64) {
@@ -203,12 +242,19 @@ pub struct Circle {
    modifiers: Vec<Modifier>,
 }
 impl Circle {
-   pub fn new(r: f64) -> Circle {
-      Circle { radius:r, modifiers:Vec::new() }
+   pub fn new(r: f64) -> Component {
+      Component::Circle(Circle { radius:r, modifiers:Vec::new() })
    }
    pub fn translate(&mut self, dx: f64, dy: f64) {
-      self.modifiers.retain(Translate::is_not);
-      self.modifiers.push(Modifier::Translate(Translate::new(dx, dy)));
+      self.modifiers.push(Translate::new(dx, dy));
+   }
+   pub fn width(&mut self, scalar: f64, unit: &str) -> &mut Circle {
+      self.modifiers.push(SizeWidthDynamic::new(scalar, unit.to_owned()));
+      self
+   }
+   pub fn height(&mut self, scalar: f64, unit: &str) -> &mut Circle {
+      self.modifiers.push(SizeHeightDynamic::new(scalar, unit.to_owned()));
+      self
    }
    pub fn radius(&self) -> f64 {
       self.radius
@@ -227,6 +273,31 @@ pub enum Component {
    Square(Square),
    Circle(Circle),
 }
+impl Component {
+   pub fn width(&mut self, scalar: f64, unit: &str) -> &mut Component {
+      match *self {
+         Component::Image(ref mut m) => { m.width(scalar,unit); }
+         Component::Font(ref mut m) => { m.width(scalar,unit); }
+         Component::Text(ref mut m) => { m.width(scalar,unit); }
+         Component::Rectangle(ref mut m) => { m.width(scalar,unit); }
+         Component::Square(ref mut m) => { m.width(scalar,unit); }
+         Component::Circle(ref mut m) => { m.width(scalar,unit); }
+         _ => {}
+      }; self
+   }
+   pub fn height(&mut self, scalar: f64, unit: &str) -> &mut Component {
+      match *self {
+         Component::Image(ref mut m) => { m.height(scalar,unit); }
+         Component::Font(ref mut m) => { m.height(scalar,unit); }
+         Component::Text(ref mut m) => { m.height(scalar,unit); }
+         Component::Rectangle(ref mut m) => { m.height(scalar,unit); }
+         Component::Square(ref mut m) => { m.height(scalar,unit); }
+         Component::Circle(ref mut m) => { m.height(scalar,unit); }
+         _ => {}
+      }; self
+   }
+}
+
 pub enum Modifier {
    Translate(Translate),
    SizeWidthDynamic(SizeWidthDynamic),
@@ -234,9 +305,16 @@ pub enum Modifier {
 }
 
 pub struct View {
+   components: Vec<Component>,
 }
 impl View {
    pub fn new() -> View {
-      View {}
+      View {
+         components: Vec::new()
+      }
+   }
+   pub fn append(&mut self, c: Component) -> &mut View {
+      self.components.push( c );
+      self
    }
 }
