@@ -30,7 +30,7 @@ impl Window {
          assets: Vec::new()
       }
    }
-   pub fn set_fullscreen(&mut self, fullscreen: bool) -> &mut Window {
+   pub fn set_fullscreen(mut self, fullscreen: bool) -> Window {
       self.fullscreen = fullscreen; self
    }
    pub fn load_assets(&mut self, mut assets: Vec<(&str,Vec<u8>)>) {

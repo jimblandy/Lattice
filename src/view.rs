@@ -280,8 +280,8 @@ pub enum Component {
    Circle(Circle),
 }
 impl Component {
-   pub fn width(&mut self, scalar: f64, unit: &str) -> &mut Component {
-      match *self {
+   pub fn width(mut self, scalar: f64, unit: &str) -> Component {
+      match self {
          Component::Image(ref mut m) => { m.width(scalar,unit); }
          Component::Font(ref mut m) => { m.width(scalar,unit); }
          Component::Text(ref mut m) => { m.width(scalar,unit); }
@@ -291,8 +291,8 @@ impl Component {
          _ => {}
       }; self
    }
-   pub fn height(&mut self, scalar: f64, unit: &str) -> &mut Component {
-      match *self {
+   pub fn height(mut self, scalar: f64, unit: &str) -> Component {
+      match self {
          Component::Image(ref mut m) => { m.height(scalar,unit); }
          Component::Font(ref mut m) => { m.height(scalar,unit); }
          Component::Text(ref mut m) => { m.height(scalar,unit); }
