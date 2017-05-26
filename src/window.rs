@@ -33,8 +33,10 @@ impl Window {
    pub fn set_fullscreen(&mut self, fullscreen: bool) -> &mut Window {
       self.fullscreen = fullscreen; self
    }
-   pub fn load_asset(&mut self, name: &str, bytes: &[u8]) {
-      self.assets.push((name.to_string(), bytes.to_vec()));
+   pub fn load_assets(&mut self, mut assets: Vec<(&str,Vec<u8>)>) {
+      while let Some((path,contents)) = assets.pop() {
+         self.assets.push((path.to_string(), contents));
+      }
    }
    pub fn start<F>(&self, cl: F) 
        where F: Fn(Events) -> View {
