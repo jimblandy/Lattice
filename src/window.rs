@@ -1,5 +1,5 @@
 use ::events::{Events};
-use ::view::{View};
+use ::view::{View, Component, Modifier};
 
 extern crate sdl2;
 use self::sdl2::pixels::Color;
@@ -39,7 +39,7 @@ impl Window {
       }
    }
    pub fn start<F>(&self, cl: F) 
-       where F: Fn(Events) -> View {
+       where F: Fn(&mut Events) -> View {
 
       let sdl_context = sdl2::init().unwrap();
       let video_subsystem = sdl_context.video().unwrap();
@@ -55,13 +55,12 @@ impl Window {
       let mut canvas = window.into_canvas().present_vsync().build().unwrap();
       let texture_creator = canvas.texture_creator();
 
-    
       let mut textures = HashMap::new();
       for ai in 0..self.assets.len() {
-         let mut texture = texture_creator.create_texture_streaming(PixelFormatEnum::RGBA8888, 256, 256).unwrap();
          let (ref name,ref buf) = self.assets[ai];
          let png = image::load_from_memory_with_format(buf, image::ImageFormat::PNG).expect("Couldn't load image");
          let (dx,dy) = png.dimensions();
+         let mut texture = texture_creator.create_texture_streaming(PixelFormatEnum::RGBA8888, dx, dy).unwrap();
          texture = texture_creator.create_texture_streaming(PixelFormatEnum::RGBA8888, dx, dy).unwrap();
          texture.with_lock(None, |buffer: &mut [u8], pitch: usize| {
             for x in 0..dx {
@@ -76,11 +75,13 @@ impl Window {
                }
             }
          }).unwrap();
-         textures.insert(name.as_str(), texture);
+         textures.insert(name.as_str(), (dx, dy, texture));
       }
 
       let mut tick = 0;
       let mut event_pump = sdl_context.event_pump().unwrap();
+
+      let mut events = Events::new();
 
       'running: loop {
          for event in event_pump.poll_iter() {
@@ -91,14 +92,50 @@ impl Window {
             }
          }
 
-         let (w,h) = {
+         let (width_px, height_px) = {
             let mut window = canvas.window_mut();
             window.drawable_size()
          };
 
+         let v = cl(&mut events);
          canvas.clear();
-         let ref texture = textures.get("assets/textures/background/home/startscreen.png").expect("texture startscreen.png");
-         canvas.copy(&texture, None, Some(Rect::new(0, 0, w, h))).unwrap();
+
+         for ci in 0..v.components.len() {
+            let ref c = v.components[ci];
+            match *c {
+               Component::Image(ref image) => {
+                  let mut x = 0;
+                  let mut y = 0;
+                  let mut w = -1i64;
+                  let mut h = -1i64;
+
+                  for mi in 0..image.modifiers().len() {
+                     let ref m = image.modifiers()[mi];
+                     match *m {
+                        Modifier::SizeWidthDynamic(ref wd) => { 
+                           match wd.unit().as_str() {
+                              "%" => { w = ((width_px as f64) * wd.scalar() / 100.0) as i64; }
+                              u => { panic!("Invalid unit: {}", u); }
+                           }
+                        }
+                        Modifier::SizeHeightDynamic(ref hd) => { 
+                           match hd.unit().as_str() {
+                              "%" => { h = ((height_px as f64) * hd.scalar() / 100.0) as i64; }
+                              u => { panic!("Invalid unit: {}", u); }
+                           }
+                        }
+                        _ => {}
+                     }
+                  }
+
+                  let (tx, ty, ref texture) = *textures.get(image.name().as_str()).expect("texture");
+                  if w<0 { w=(tx as i64) };
+                  if h<0 { h=(ty as i64) };
+                  canvas.copy(texture, None, Some(Rect::new(x, y, (w as u32), (h as u32)))).unwrap();
+               }
+               _ => {}
+            }
+         }
          canvas.present();
       }
    }

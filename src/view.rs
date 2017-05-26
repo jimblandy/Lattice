@@ -102,6 +102,9 @@ impl Font {
    pub fn name(&self) -> &String {
       &self.name
    }
+   pub fn modifiers(&self) -> &Vec<Modifier> {
+      &self.modifiers
+   }
    pub fn translate(&mut self, dx: f64, dy: f64) -> &mut Font {
       self.modifiers.push(Translate::new(dx, dy));
       self
@@ -126,6 +129,9 @@ pub struct Image {
 impl Image {
    pub fn new(name: &str) -> Component {
       Component::Image(Image { name: name.to_owned(), modifiers:Vec::new() })
+   }
+   pub fn modifiers(&self) -> &Vec<Modifier> {
+      &self.modifiers
    }
    pub fn translate(&mut self, dx: f64, dy: f64) -> &mut Image {
       self.modifiers.push(Translate::new(dx, dy));
@@ -305,7 +311,7 @@ pub enum Modifier {
 }
 
 pub struct View {
-   components: Vec<Component>,
+   pub components: Vec<Component>,
 }
 impl View {
    pub fn new() -> View {
