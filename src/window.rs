@@ -60,8 +60,7 @@ impl Window {
       for ai in 0..self.assets.len() {
          let mut texture = texture_creator.create_texture_streaming(PixelFormatEnum::RGBA8888, 256, 256).unwrap();
          let (ref name,ref buf) = self.assets[ai];
-         let png = image::load_from_memory(buf).expect("Couldn't load image");
-         let png = png.as_rgba8().expect("cast to rgba8");
+         let png = image::load_from_memory_with_format(buf, image::ImageFormat::PNG).expect("Couldn't load image");
          let (dx,dy) = png.dimensions();
          texture = texture_creator.create_texture_streaming(PixelFormatEnum::RGBA8888, dx, dy).unwrap();
          texture.with_lock(None, |buffer: &mut [u8], pitch: usize| {
