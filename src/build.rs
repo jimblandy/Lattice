@@ -1,15 +1,14 @@
 use std;
 use std::io::Write;
 extern crate glob;
-use self::glob::glob;
+use self::glob::{glob,GlobError};
 use std::fs::File;
+use std::path::Path;
 use std::io::prelude::*;
 
-pub fn with_assets() {
-   let mut out_file = File::create("src/assets.in").expect("file open");
-   out_file.write_all( b"[" ).expect("file write");
-   for entry in glob("src/assets/**/*.png").expect("Failed to read glob pattern") {
-      match entry {
+macro_rules! read_entry {
+   ($f: ident, $p: ident) => (
+      match $p {
          Ok(path) => {
             let mut in_file = File::open(path.clone()).expect("asset file");
             let mut contents = Vec::new();
@@ -17,10 +16,22 @@ pub fn with_assets() {
             let path = path.strip_prefix("src").expect("src prefix");
             let path = path.to_str().unwrap();
             let path = format!("\"{}\"", path);
-            out_file.write_all( format!("({},include_bytes!({}).to_vec()),", path, path).as_bytes() ).expect("file write");
+            $f.write_all( format!("({},include_bytes!({}).to_vec()),", path, path).as_bytes() ).expect("file write");
+
          }
          Err(e) => println!("{:?}", e),
       }
+   );
+}
+
+pub fn with_assets() {
+   let mut out_file = File::create("src/assets.in").expect("file open");
+   out_file.write_all( b"[" ).expect("file write");
+   for entry in glob("src/assets/**/*.png").expect("Failed to read glob pattern") {
+      read_entry!(out_file, entry)
+   }
+   for entry in glob("src/assets/**/*.ttf").expect("Failed to read glob pattern") {
+      read_entry!(out_file, entry)
    }
    out_file.write_all( b"]" ).expect("file write");
 }

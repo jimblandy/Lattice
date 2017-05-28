@@ -58,24 +58,32 @@ impl Window {
       let mut textures = HashMap::new();
       for ai in 0..self.assets.len() {
          let (ref name,ref buf) = self.assets[ai];
-         let png = image::load_from_memory_with_format(buf, image::ImageFormat::PNG).expect("Couldn't load image");
-         let (dx,dy) = png.dimensions();
-         let mut texture = texture_creator.create_texture_streaming(PixelFormatEnum::RGBA8888, dx, dy).unwrap();
-         texture = texture_creator.create_texture_streaming(PixelFormatEnum::RGBA8888, dx, dy).unwrap();
-         texture.with_lock(None, |buffer: &mut [u8], pitch: usize| {
-            for x in 0..dx {
-               for y in 0..dy {
-                  let pitch = pitch as u32;
-                  let offset = (y*pitch + 4*x) as usize;
-                  let p = png.get_pixel(x, y);
-                  buffer[offset+0] = p.data[3] as u8;
-                  buffer[offset+1] = p.data[2] as u8;
-                  buffer[offset+2] = p.data[1] as u8;
-                  buffer[offset+3] = p.data[0] as u8;
+         let ns = name.to_string();
+         if ns.ends_with(".png") {
+            let png = image::load_from_memory_with_format(buf, image::ImageFormat::PNG).expect("Couldn't load image");
+            let (dx,dy) = png.dimensions();
+            let mut texture = texture_creator.create_texture_streaming(PixelFormatEnum::RGBA8888, dx, dy).unwrap();
+            texture = texture_creator.create_texture_streaming(PixelFormatEnum::RGBA8888, dx, dy).unwrap();
+            texture.with_lock(None, |buffer: &mut [u8], pitch: usize| {
+               for x in 0..dx {
+                  for y in 0..dy {
+                     let pitch = pitch as u32;
+                     let offset = (y*pitch + 4*x) as usize;
+                     let p = png.get_pixel(x, y);
+                     buffer[offset+0] = p.data[3] as u8;
+                     buffer[offset+1] = p.data[2] as u8;
+                     buffer[offset+2] = p.data[1] as u8;
+                     buffer[offset+3] = p.data[0] as u8;
+                  }
                }
-            }
-         }).unwrap();
-         textures.insert(name.as_str(), (dx, dy, texture));
+            }).unwrap();
+            textures.insert(name.as_str(), (dx, dy, texture));
+         }
+         else if ns.ends_with(".ttf") {
+            println!("load ttf font: {}", ns);
+         } else {
+            panic!("Unrecognized asset file format: {}", ns)
+         }
       }
 
       let mut tick = 0;
