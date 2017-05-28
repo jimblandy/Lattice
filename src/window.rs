@@ -80,7 +80,7 @@ impl Window {
                      buffer[offset+3] = p.data[0] as u8;
                   }
                }
-            }).unwrap();
+            }).expect("texture with_lock");
             textures.insert(name.as_str(), (dx, dy, texture));
          }
          else if ns.ends_with(".ttf") {
@@ -141,7 +141,8 @@ impl Window {
                      }
                   }
 
-                  let (tx, ty, ref texture) = *textures.get(image.name().as_str()).expect("texture");
+                  let (tx, ty, ref texture) = *textures.get(image.name().as_str())
+                                              .expect(format!("no texture named: {}", image.name()).as_str());
                   if w<0 { w=(tx as i64) };
                   if h<0 { h=(ty as i64) };
                   canvas.copy(texture, None, Some(Rect::new(x, y, (w as u32), (h as u32)))).unwrap();
