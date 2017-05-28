@@ -3,7 +3,8 @@ name = "Lattice"
 version = "0.1.20"
 authors = ["Andrew <andrew@subarctic.org>"]
 description = "A third generation window manager for FRP in Rust"
-keywords = ["window-manager", "graphics", "functional-programming", "FRP", "MVC"]
+keywords = ["windowing", "graphics", "api", "functional"]
+categories = ["rendering","games","api-bindings","game-engines","multimedia"]
 license = "MIT"
 
 [dependencies]
