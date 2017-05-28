@@ -1,6 +1,9 @@
 use ::events::{Events};
 use ::view::{View, Component, Modifier};
 
+extern crate rusttype;
+use self::rusttype::{FontCollection};
+
 extern crate sdl2;
 use self::sdl2::pixels::Color;
 use self::sdl2::event::Event;
@@ -56,6 +59,7 @@ impl Window {
       let texture_creator = canvas.texture_creator();
 
       let mut textures = HashMap::new();
+      let mut fonts = HashMap::new();
       for ai in 0..self.assets.len() {
          let (ref name,ref buf) = self.assets[ai];
          let ns = name.to_string();
@@ -80,7 +84,8 @@ impl Window {
             textures.insert(name.as_str(), (dx, dy, texture));
          }
          else if ns.ends_with(".ttf") {
-            println!("load ttf font: {}", ns);
+            let font = FontCollection::from_bytes(buf as &[u8]).into_font().expect("single ttf font file");
+            fonts.insert(name.as_str(), font);
          } else {
             panic!("Unrecognized asset file format: {}", ns)
          }

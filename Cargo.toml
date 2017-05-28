@@ -1,6 +1,6 @@
 [package]
 name = "Lattice"
-version = "0.1.20"
+version = "0.1.21"
 authors = ["Andrew <andrew@subarctic.org>"]
 description = "A third generation window manager for FRP in Rust"
 repository = "https://github.com/andrew-lucker/Lattice"
@@ -13,3 +13,6 @@ license = "MIT"
 sdl2 = "0.30"
 image = "0.13"
 glob = "0.2"
+rusttype = "0.2"
+arrayvec = "0.3"
+unicode-normalization = "0.1"
