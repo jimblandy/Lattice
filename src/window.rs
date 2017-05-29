@@ -2,7 +2,7 @@ use ::events::{Events};
 use ::view::{View, Component, Modifier};
 
 extern crate rusttype;
-use self::rusttype::{FontCollection};
+use self::rusttype::{FontCollection, Scale, point, PositionedGlyph};
 
 extern crate sdl2;
 use self::sdl2::pixels::Color;
@@ -126,14 +126,14 @@ impl Window {
                      let ref m = image.modifiers()[mi];
                      match *m {
                         Modifier::SizeWidthDynamic(ref wd) => { 
-                           match wd.unit().as_str() {
-                              "%" => { w = ((width_px as f64) * wd.scalar() / 100.0) as i64; }
+                           match wd.unit.as_str() {
+                              "%" => { w = ((width_px as f64) * wd.scalar / 100.0) as i64; }
                               u => { panic!("Invalid unit: {}", u); }
                            }
                         }
                         Modifier::SizeHeightDynamic(ref hd) => { 
-                           match hd.unit().as_str() {
-                              "%" => { h = ((height_px as f64) * hd.scalar() / 100.0) as i64; }
+                           match hd.unit.as_str() {
+                              "%" => { h = ((height_px as f64) * hd.scalar / 100.0) as i64; }
                               u => { panic!("Invalid unit: {}", u); }
                            }
                         }
@@ -141,11 +141,24 @@ impl Window {
                      }
                   }
 
-                  let (tx, ty, ref texture) = *textures.get(image.name().as_str())
-                                              .expect(format!("no texture named: {}", image.name()).as_str());
+                  let (tx, ty, ref texture) = *textures.get(image.name.as_str())
+                                              .expect(format!("no texture named: {}", image.name).as_str());
                   if w<0 { w=(tx as i64) };
                   if h<0 { h=(ty as i64) };
                   canvas.copy(texture, None, Some(Rect::new(x, y, (w as u32), (h as u32)))).unwrap();
+               }
+               Component::Text(ref text) => {
+                  let font = fonts.get(text.font.as_str()).expect(format!("Could not find font: {}", text.font).as_str());
+
+                  let height: f32 = 12.4;
+                  let pixel_height = height.ceil() as usize;
+                  let scale = Scale { x: height*2.0, y: height };
+
+                  let v_metrics = font.v_metrics(scale);
+                  let offset = point(0.0, v_metrics.ascent);
+
+                  let glyphs: Vec<PositionedGlyph> = font.layout(text.content.as_str(), scale, offset).collect();
+                  println!("loaded glyphs for rendering");
                }
                _ => {}
             }
