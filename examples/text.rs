@@ -10,11 +10,13 @@ fn main() {
     w.start(|events| {
        let mut v = View::new();
        v.append(Text::new("assets/Macondo-Regular.ttf", "paragraph justified")
+               .color([0.4, 0.4, 1.0, 1.0])
                .width(100.0, "px")
                .justify()
                .translate_x(50.0, "px")
                .translate_y(50.0, "px"));
        v.append(Text::new("assets/Macondo-Regular.ttf", "text banner centered")
+               .color([1.0, 0.4, 0.4, 1.0])
                .translate_x(1.0, "~")
                .translate_y(-10.0, "%"));
        v
