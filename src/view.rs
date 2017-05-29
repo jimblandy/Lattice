@@ -91,37 +91,6 @@ impl Translate {
    }
 }
 
-pub struct Font {
-   name: String,
-   modifiers: Vec<Modifier>,
-}
-impl Font {
-   pub fn new(name: String) -> Component {
-      Component::Font(Font { name: name, modifiers:Vec::new() })
-   }
-   pub fn name(&self) -> &String {
-      &self.name
-   }
-   pub fn modifiers(&self) -> &Vec<Modifier> {
-      &self.modifiers
-   }
-   pub fn translate(&mut self, dx: f64, dy: f64) -> &mut Font {
-      self.modifiers.push(Translate::new(dx, dy));
-      self
-   }
-   pub fn width(&mut self, scalar: f64, unit: &str) -> &mut Font {
-      self.modifiers.push(SizeWidthDynamic::new(scalar, unit.to_owned()));
-      self
-   }
-   pub fn height(&mut self, scalar: f64, unit: &str) -> &mut Font {
-      self.modifiers.push(SizeHeightDynamic::new(scalar, unit.to_owned()));
-      self
-   }
-   pub fn set_name(&mut self, name: String) {
-      self.name = name;
-   }
-}
-
 pub struct Image {
    name: String,
    modifiers: Vec<Modifier>,
@@ -155,11 +124,12 @@ impl Image {
 
 pub struct Text {
    content: String,
+   font: String,
    modifiers: Vec<Modifier>,
 }
 impl Text {
-   pub fn new(cs: String) -> Component {
-      Component::Text(Text { content: cs, modifiers:Vec::new() })
+   pub fn new(font: String, cs: String) -> Component {
+      Component::Text(Text { font:font, content: cs, modifiers:Vec::new() })
    }
    pub fn translate(&mut self, dx: f64, dy: f64) -> &mut Text {
       self.modifiers.push(Translate::new(dx, dy));
@@ -273,7 +243,6 @@ impl Circle {
 pub enum Component {
    Modifier(Modifier),
    Image(Image),
-   Font(Font),
    Text(Text),
    Rectangle(Rectangle),
    Square(Square),
@@ -283,7 +252,6 @@ impl Component {
    pub fn width(mut self, scalar: f64, unit: &str) -> Component {
       match self {
          Component::Image(ref mut m) => { m.width(scalar,unit); }
-         Component::Font(ref mut m) => { m.width(scalar,unit); }
          Component::Text(ref mut m) => { m.width(scalar,unit); }
          Component::Rectangle(ref mut m) => { m.width(scalar,unit); }
          Component::Square(ref mut m) => { m.width(scalar,unit); }
@@ -294,7 +262,6 @@ impl Component {
    pub fn height(mut self, scalar: f64, unit: &str) -> Component {
       match self {
          Component::Image(ref mut m) => { m.height(scalar,unit); }
-         Component::Font(ref mut m) => { m.height(scalar,unit); }
          Component::Text(ref mut m) => { m.height(scalar,unit); }
          Component::Rectangle(ref mut m) => { m.height(scalar,unit); }
          Component::Square(ref mut m) => { m.height(scalar,unit); }
