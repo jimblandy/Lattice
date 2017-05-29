@@ -38,6 +38,15 @@ impl TranslateY {
    }
 }
 
+pub struct Color {
+   rgba: [f64; 4],
+}
+impl Color {
+   pub fn new(rgba: [f64; 4]) -> Modifier {
+      Modifier::Color(Color { rgba:rgba })
+   }
+}
+
 pub struct Image {
    pub name: String,
    modifiers: Vec<Modifier>,
@@ -66,11 +75,13 @@ impl Image {
 pub struct Text {
    pub content: String,
    pub font: String,
+   pub align: String,
    modifiers: Vec<Modifier>,
 }
 impl Text {
    pub fn new(font: &str, cs: &str) -> Component {
-      Component::Text(Text { font:font.to_owned(), content: cs.to_owned(), modifiers:Vec::new() })
+      Component::Text(Text { font:font.to_owned(), content: cs.to_owned(),
+                             align: "left".to_owned(), modifiers:Vec::new() })
    }
    pub fn translate_x(&mut self, scalar: f64, unit: &str) {
       self.modifiers.push(TranslateX::new(scalar, unit.to_owned()));
@@ -83,6 +94,12 @@ impl Text {
    }
    pub fn height(&mut self, scalar: f64, unit: &str) {
       self.modifiers.push(SizeHeightDynamic::new(scalar, unit.to_owned()));
+   }
+   pub fn color(&mut self, rgba: [f64; 4]) {
+      self.modifiers.push(Color::new(rgba));
+   }
+   pub fn justify(&mut self) {
+      self.align = "justify".to_owned()
    }
 }
 
@@ -142,9 +159,22 @@ impl Component {
          _ => {}
       }; self
    }
+   pub fn color(mut self, rgba: [f64; 4]) -> Component {
+      match self {
+         Component::Text(ref mut m) => { m.color(rgba); }
+         _ => {}
+      }; self
+   }
+   pub fn justify(mut self) -> Component {
+      match self {
+         Component::Text(ref mut m) => { m.justify(); }
+         _ => {}
+      }; self
+   }
 }
 
 pub enum Modifier {
+   Color(Color),
    TranslateX(TranslateX),
    TranslateY(TranslateY),
    SizeWidthDynamic(SizeWidthDynamic),

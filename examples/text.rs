@@ -1,7 +1,7 @@
 #[macro_use(with_assets)]
 extern crate Lattice;
 use Lattice::window::{Window};
-use Lattice::view::{View, Image};
+use Lattice::view::{View, Text};
 
 fn main() {
     let mut w = Window::new("Premadeath")
@@ -9,7 +9,8 @@ fn main() {
     with_assets!(w);
     w.start(|events| {
        let mut v = View::new();
-       v.append(Text::new("assets/Macondo-Regular.ttf", "paragraph justified")
+       v.append(Text::new("assets/Macondo-Regular.ttf", "paragraph justified paragraph justified paragraph justified paragraph justified paragraph justified
+paragraph justified paragraph justified paragraph justified paragraph justified paragraph justified paragraph justified paragraph justified paragraph justified")
                .color([0.4, 0.4, 1.0, 1.0])
                .width(100.0, "px")
                .justify()
