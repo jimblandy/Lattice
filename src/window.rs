@@ -10,6 +10,7 @@ use self::sdl2::event::Event;
 use self::sdl2::keyboard::Keycode;
 use self::sdl2::pixels::PixelFormatEnum;
 use self::sdl2::rect::Rect;
+use self::sdl2::render::Texture;
 
 extern crate image;
 use self::image::*;
@@ -60,6 +61,7 @@ impl Window {
 
       let mut textures = HashMap::new();
       let mut fonts = HashMap::new();
+      let mut glyphs: HashMap<(char,usize),(usize,Texture)> = HashMap::new();
       for ai in 0..self.assets.len() {
          let (ref name,ref buf) = self.assets[ai];
          let ns = name.to_string();
@@ -67,7 +69,6 @@ impl Window {
             let png = image::load_from_memory_with_format(buf, image::ImageFormat::PNG).expect("Couldn't load image");
             let (dx,dy) = png.dimensions();
             let mut texture = texture_creator.create_texture_streaming(PixelFormatEnum::RGBA8888, dx, dy).unwrap();
-            texture = texture_creator.create_texture_streaming(PixelFormatEnum::RGBA8888, dx, dy).unwrap();
             texture.with_lock(None, |buffer: &mut [u8], pitch: usize| {
                for x in 0..dx {
                   for y in 0..dy {
@@ -157,8 +158,50 @@ impl Window {
                   let v_metrics = font.v_metrics(scale);
                   let offset = point(0.0, v_metrics.ascent);
 
-                  let glyphs: Vec<PositionedGlyph> = font.layout(text.content.as_str(), scale, offset).collect();
-                  println!("loaded glyphs for rendering");
+                  let gs: Vec<(usize,usize,Texture)> = Vec::new();
+                  for c in text.content.as_str().chars() {
+                     if !glyphs.contains_key(&(c, pixel_height)) {
+                        let ctxt = format!("{}", c);
+                        let gl: Vec<PositionedGlyph> = font.layout(ctxt.as_str(), scale, offset).collect();
+                        let width = gl.iter().rev()
+                                   .filter_map(|g| g.pixel_bounding_box()
+                                   .map(|b| b.min.x as f32 + g.unpositioned().h_metrics().advance_width))
+                                   .next().unwrap_or(0.0).ceil() as usize;
+                        let mut rasterized_glyph = vec![0u32; width * pixel_height];
+                        for g in gl {
+                           if let Some(bb) = g.pixel_bounding_box() {
+                              g.draw(|x, y, v| {
+                                 let w = (v * 255.0) as u32;
+                                 let x = x as i32 + bb.min.x;
+                                 let y = y as i32 + bb.min.y;
+                                 let width = width as i32;
+                                 if x >= 0 && x < width as i32 && y >= 0 && y < pixel_height as i32 {
+                                    rasterized_glyph[(x + y * width) as usize] = w;
+                                 }
+                              })
+                           }
+                        }
+
+                        let mut texture = texture_creator.create_texture_streaming(PixelFormatEnum::RGBA8888, width as u32, pixel_height as u32)
+                                           .expect("Expect glyph texture");
+                        texture.with_lock(None, |buffer: &mut [u8], pitch: usize| {
+                           for x in 0..width {
+                              for y in 0..pixel_height {
+                                 let pitch = pitch;
+                                 let offset = (y*pitch + 4*x) as usize;
+                                 buffer[offset+0] = 255 as u8;
+                                 buffer[offset+1] = 255 as u8;
+                                 buffer[offset+2] = 255 as u8;
+                                 buffer[offset+3] = rasterized_glyph[(x + y * width) as usize] as u8;
+                              }
+                           }
+                        }).expect("texture with_lock");
+                        glyphs.insert((c, pixel_height as usize), (width as usize, texture));
+                     };
+                     let ref gtx = glyphs.get(&(c, pixel_height)).unwrap();
+                     panic!("layout and draw text to screen");
+                  }
+
                }
                _ => {}
             }
