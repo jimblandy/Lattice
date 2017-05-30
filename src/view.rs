@@ -19,8 +19,8 @@ impl SizeHeightDynamic {
 }
 
 pub struct TranslateX {
-   scalar: f64,
-   unit: String,
+   pub scalar: f64,
+   pub unit: String,
 }
 impl TranslateX {
    pub fn new(scalar: f64, unit: String) -> Modifier {
@@ -29,8 +29,8 @@ impl TranslateX {
 }
 
 pub struct TranslateY {
-   scalar: f64,
-   unit: String,
+   pub scalar: f64,
+   pub unit: String,
 }
 impl TranslateY {
    pub fn new(scalar: f64, unit: String) -> Modifier {
@@ -39,7 +39,7 @@ impl TranslateY {
 }
 
 pub struct Color {
-   rgba: [f64; 4],
+   pub rgba: [f64; 4],
 }
 impl Color {
    pub fn new(rgba: [f64; 4]) -> Modifier {
@@ -47,9 +47,19 @@ impl Color {
    }
 }
 
+pub struct Scale {
+   pub scale: f64,
+   pub unit: String
+}
+impl Scale {
+   pub fn new(scale: f64, unit: &str) -> Modifier {
+      Modifier::Scale(Scale { scale:scale, unit:unit.to_owned() })
+   }
+}
+
 pub struct Image {
    pub name: String,
-   modifiers: Vec<Modifier>,
+   pub modifiers: Vec<Modifier>,
 }
 impl Image {
    pub fn new(name: &str) -> Component {
@@ -76,7 +86,7 @@ pub struct Text {
    pub content: String,
    pub font: String,
    pub align: String,
-   modifiers: Vec<Modifier>,
+   pub modifiers: Vec<Modifier>,
 }
 impl Text {
    pub fn new(font: &str, cs: &str) -> Component {
@@ -98,6 +108,9 @@ impl Text {
    pub fn color(&mut self, rgba: [f64; 4]) {
       self.modifiers.push(Color::new(rgba));
    }
+   pub fn scale(&mut self, scale: f64, unit: &str) {
+      self.modifiers.push(Scale::new(scale, unit));
+   }
    pub fn justify(&mut self) {
       self.align = "justify".to_owned()
    }
@@ -108,7 +121,7 @@ pub struct Rectangle {
    pub hunit: String,
    pub width: f64,
    pub wunit: String,
-   modifiers: Vec<Modifier>,
+   pub modifiers: Vec<Modifier>,
 }
 impl Rectangle {
    pub fn new(w: f64, wunit: &str, h: f64, hunit: &str) -> Component {
@@ -165,6 +178,12 @@ impl Component {
          _ => {}
       }; self
    }
+   pub fn scale(mut self, scale: f64, unit: &str) -> Component {
+      match self {
+         Component::Text(ref mut m) => { m.scale(scale, unit); }
+         _ => {}
+      }; self
+   }
    pub fn justify(mut self) -> Component {
       match self {
          Component::Text(ref mut m) => { m.justify(); }
@@ -175,6 +194,7 @@ impl Component {
 
 pub enum Modifier {
    Color(Color),
+   Scale(Scale),
    TranslateX(TranslateX),
    TranslateY(TranslateY),
    SizeWidthDynamic(SizeWidthDynamic),

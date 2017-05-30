@@ -12,14 +12,17 @@ fn main() {
        v.append(Text::new("assets/Macondo-Regular.ttf", "paragraph justified paragraph justified paragraph justified paragraph justified paragraph justified
 paragraph justified paragraph justified paragraph justified paragraph justified paragraph justified paragraph justified paragraph justified paragraph justified")
                .color([0.4, 0.4, 1.0, 1.0])
-               .width(100.0, "px")
+               .scale(3.0, "em")
+               .width(400.0, "px")
                .justify()
-               .translate_x(50.0, "px")
-               .translate_y(50.0, "px"));
+               .translate_x(150.0, "px")
+               .translate_y(150.0, "px"));
+       /*
        v.append(Text::new("assets/Macondo-Regular.ttf", "text banner centered")
                .color([1.0, 0.4, 0.4, 1.0])
                .translate_x(1.0, "~")
                .translate_y(-10.0, "%"));
+       */
        v
     });
 }

@@ -65,6 +65,7 @@ impl Window {
       let mut textures = HashMap::new();
       let mut fonts = HashMap::new();
       let mut glyphs: HashMap<(char,usize),(usize,Texture)> = HashMap::new();
+      let mut em = 22.0f64;
       for ai in 0..self.assets.len() {
          let (ref name,ref buf) = self.assets[ai];
          let ns = name.to_string();
@@ -115,6 +116,8 @@ impl Window {
             let mut window = canvas.window_mut();
             window.drawable_size()
          };
+         let width_pct = (width_px as f64) / 100.0;
+         let height_pct = (height_px as f64) / 100.0;
 
          let v = cl(&mut events);
          canvas.set_draw_color(Color::RGB(0, 0, 0));
@@ -134,13 +137,15 @@ impl Window {
                      match *m {
                         Modifier::SizeWidthDynamic(ref wd) => { 
                            match wd.unit.as_str() {
-                              "%" => { w = ((width_px as f64) * wd.scalar / 100.0) as i64; }
+                              "%" => { w = (wd.scalar * width_pct) as i64; }
+                              "em" => { w = (wd.scalar * em) as i64; }
                               u => { panic!("Invalid unit: {}", u); }
                            }
                         }
                         Modifier::SizeHeightDynamic(ref hd) => { 
                            match hd.unit.as_str() {
-                              "%" => { h = ((height_px as f64) * hd.scalar / 100.0) as i64; }
+                              "%" => { h = (hd.scalar * height_pct) as i64; }
+                              "em" => { h = (hd.scalar * em) as i64; }
                               u => { panic!("Invalid unit: {}", u); }
                            }
                         }
@@ -157,9 +162,21 @@ impl Window {
                Component::Text(ref text) => {
                   let font = fonts.get(text.font.as_str()).expect(format!("Could not find font: {}", text.font).as_str());
 
-                  let height: f32 = 100.4;
-                  let pixel_height = height.ceil() as usize;
-                  let scale = Scale { x: height*2.0, y: height };
+                  let mut pixel_height = em as usize;
+                  for mi in 0..text.modifiers.len() {
+                     match text.modifiers[mi] {
+                        Modifier::Scale(ref s) => {
+                           match s.unit.as_str() {
+                             "em" => { pixel_height = (em * s.scale).ceil() as usize; }
+                             "%" => { pixel_height = (height_pct * s.scale).ceil() as usize; }
+                             _ => {}
+                           }
+                        }
+                        _ => {}
+                     }
+                  }
+
+                  let scale = Scale { x: (pixel_height as f32)*2.0, y: (pixel_height as f32) };
 
                   let v_metrics = font.v_metrics(scale);
                   let offset = point(0.0, v_metrics.ascent);
@@ -171,7 +188,7 @@ impl Window {
                         let width = gl.iter().rev()
                                    .filter_map(|g| g.pixel_bounding_box()
                                    .map(|b| b.min.x as f32 + g.unpositioned().h_metrics().advance_width))
-                                   .next().unwrap_or(height * 0.7).ceil() as usize;
+                                   .next().unwrap_or((em as f32) * 2.0).ceil() as usize;
                         let mut rasterized_glyph = vec![0u32; width * pixel_height];
                         for g in gl {
                            if let Some(bb) = g.pixel_bounding_box() {
@@ -207,7 +224,7 @@ impl Window {
                      };
                   }
 
-                  let width = 99999 as usize;
+                  let width = 9999999 as usize;
                   let line_height = pixel_height as usize;
                   let justify = false;
                   let positioned = {
@@ -218,8 +235,8 @@ impl Window {
                      for c in text.content.as_str().nfc() {
                         if c.is_control() {
                             match c {
-                               '\r' => { caret = 0; height += pixel_height; }
-                               '\n' => {},
+                               '\r' => { caret = 0; height += line_height; }
+                               '\n' => { caret = 0; height += line_height; },
                                _ => {}
                             }
                             continue;
