@@ -72,6 +72,8 @@ impl Window {
             let png = image::load_from_memory_with_format(buf, image::ImageFormat::PNG).expect("Couldn't load image");
             let (dx,dy) = png.dimensions();
             let mut texture = texture_creator.create_texture_streaming(PixelFormatEnum::RGBA8888, dx, dy).unwrap();
+            texture.set_blend_mode(BlendMode::Blend);
+            texture.set_alpha_mod(255);
             texture.with_lock(None, |buffer: &mut [u8], pitch: usize| {
                for x in 0..dx {
                   for y in 0..dy {
@@ -187,19 +189,20 @@ impl Window {
 
                         let mut texture = texture_creator.create_texture_streaming(PixelFormatEnum::RGBA8888, width as u32, pixel_height as u32)
                                            .expect("Expect glyph texture");
+                        texture.set_blend_mode(BlendMode::Blend);
+                        texture.set_alpha_mod(255);
                         texture.with_lock(None, |buffer: &mut [u8], pitch: usize| {
                            for x in 0..width {
                               for y in 0..pixel_height {
                                  let pitch = pitch;
                                  let offset = (y*pitch + 4*x) as usize;
-                                 buffer[offset+0] = 255 as u8;
+                                 buffer[offset+0] = rasterized_glyph[(x + y * width) as usize] as u8;
                                  buffer[offset+1] = 255 as u8;
                                  buffer[offset+2] = 255 as u8;
-                                 buffer[offset+3] = rasterized_glyph[(x + y * width) as usize] as u8;
+                                 buffer[offset+3] = 255 as u8;
                               }
                            }
                         }).expect("texture with_lock");
-                        texture.set_blend_mode(BlendMode::Blend);
                         glyphs.insert((c, pixel_height as usize), (width as usize, texture));
                      };
                   }
@@ -242,7 +245,7 @@ impl Window {
 
                   for pi in 0..positioned.len() {
                      let (caret, height, c, line_height) = positioned[pi];
-                     let (glyph_width, ref base_glyph) = match glyphs.get(&(c,line_height)) {
+                     let (glyph_width, ref mut base_glyph) = match glyphs.get(&(c,line_height)) {
                         Some(c) => {
                            let (w, ref g) = *c;
                            (w, g)
