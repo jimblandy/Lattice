@@ -13,6 +13,10 @@ fn main() {
                   .height(100.0, "%")
                   .width(100.0, "%");
        v.append(i);
+       let mut i = Image::new("assets/handcloth.png")
+                  .height(20.0, "%")
+                  .width(20.0, "%");
+       v.append(i);
        v
     });
 }

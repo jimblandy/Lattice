@@ -4,13 +4,15 @@ use ::view::{View, Component, Modifier};
 extern crate rusttype;
 use self::rusttype::{FontCollection, Scale, point, PositionedGlyph};
 
+extern crate unicode_normalization;
+
 extern crate sdl2;
 use self::sdl2::pixels::Color;
 use self::sdl2::event::Event;
 use self::sdl2::keyboard::Keycode;
 use self::sdl2::pixels::PixelFormatEnum;
 use self::sdl2::rect::Rect;
-use self::sdl2::render::Texture;
+use self::sdl2::render::{Texture, BlendMode};
 
 extern crate image;
 use self::image::*;
@@ -57,6 +59,7 @@ impl Window {
       let window = window.build().unwrap();
 
       let mut canvas = window.into_canvas().present_vsync().build().unwrap();
+      canvas.set_blend_mode(BlendMode::Blend);
       let texture_creator = canvas.texture_creator();
 
       let mut textures = HashMap::new();
@@ -112,6 +115,7 @@ impl Window {
          };
 
          let v = cl(&mut events);
+         canvas.set_draw_color(Color::RGB(0, 0, 0));
          canvas.clear();
 
          for ci in 0..v.components.len() {
@@ -151,7 +155,7 @@ impl Window {
                Component::Text(ref text) => {
                   let font = fonts.get(text.font.as_str()).expect(format!("Could not find font: {}", text.font).as_str());
 
-                  let height: f32 = 12.4;
+                  let height: f32 = 100.4;
                   let pixel_height = height.ceil() as usize;
                   let scale = Scale { x: height*2.0, y: height };
 
@@ -165,7 +169,7 @@ impl Window {
                         let width = gl.iter().rev()
                                    .filter_map(|g| g.pixel_bounding_box()
                                    .map(|b| b.min.x as f32 + g.unpositioned().h_metrics().advance_width))
-                                   .next().unwrap_or(0.0).ceil() as usize;
+                                   .next().unwrap_or(height * 0.7).ceil() as usize;
                         let mut rasterized_glyph = vec![0u32; width * pixel_height];
                         for g in gl {
                            if let Some(bb) = g.pixel_bounding_box() {
@@ -195,10 +199,60 @@ impl Window {
                               }
                            }
                         }).expect("texture with_lock");
+                        texture.set_blend_mode(BlendMode::Blend);
                         glyphs.insert((c, pixel_height as usize), (width as usize, texture));
                      };
                   }
-                  panic!("layout and draw text to screen");
+
+                  let width = 99999 as usize;
+                  let line_height = pixel_height as usize;
+                  let justify = false;
+                  let positioned = {
+                     use self::unicode_normalization::UnicodeNormalization;
+                     let mut result = Vec::new();
+                     let mut caret = 0;
+                     let mut height = 0;
+                     for c in text.content.as_str().nfc() {
+                        if c.is_control() {
+                            match c {
+                               '\r' => { caret = 0; height += pixel_height; }
+                               '\n' => {},
+                               _ => {}
+                            }
+                            continue;
+                        }
+                        let (glyph_width, ref base_glyph) = match glyphs.get(&(c,line_height)) {
+                           Some(c) => {
+                              let (w, ref g) = *c;
+                              (w, g)
+                           }
+                           _ => { continue; }
+                        };
+                        if caret + glyph_width > width {
+                           caret = 0; height += line_height;
+                        }
+                        result.push( (caret, height, c, line_height) );
+                        caret += glyph_width;
+                     }
+                     if justify {
+                        panic!("TODO: implement justify");
+                     }
+                     result
+                  };
+
+                  for pi in 0..positioned.len() {
+                     let (caret, height, c, line_height) = positioned[pi];
+                     let (glyph_width, ref base_glyph) = match glyphs.get(&(c,line_height)) {
+                        Some(c) => {
+                           let (w, ref g) = *c;
+                           (w, g)
+                        }
+                        _ => { continue; }
+                     };
+                     let x = caret;
+                     let y = height;
+                     canvas.copy(base_glyph, None, Some(Rect::new((x as i32), (y as i32), (glyph_width as u32), (line_height as u32)))).unwrap();
+                  }
                }
                _ => {}
             }
