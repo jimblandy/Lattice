@@ -158,7 +158,6 @@ impl Window {
                   let v_metrics = font.v_metrics(scale);
                   let offset = point(0.0, v_metrics.ascent);
 
-                  let gs: Vec<(usize,usize,Texture)> = Vec::new();
                   for c in text.content.as_str().chars() {
                      if !glyphs.contains_key(&(c, pixel_height)) {
                         let ctxt = format!("{}", c);
@@ -198,10 +197,8 @@ impl Window {
                         }).expect("texture with_lock");
                         glyphs.insert((c, pixel_height as usize), (width as usize, texture));
                      };
-                     let ref gtx = glyphs.get(&(c, pixel_height)).unwrap();
-                     panic!("layout and draw text to screen");
                   }
-
+                  panic!("layout and draw text to screen");
                }
                _ => {}
             }
