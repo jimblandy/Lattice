@@ -72,10 +72,11 @@ impl Shadow {
 pub struct Image {
    pub name: String,
    pub modifiers: Vec<Modifier>,
+   pub events: Vec<(Event, Box<FnMut(&mut Events, &mut MutableComponent)>)>,
 }
 impl Image {
    pub fn new(name: &str) -> Component {
-      Component::Image(Image { name: name.to_owned(), modifiers:Vec::new() })
+      Component::Image(Image { name: name.to_owned(), modifiers:Vec::new(), events:Vec::new() })
    }
    pub fn modifiers(&self) -> &Vec<Modifier> {
       &self.modifiers
@@ -99,11 +100,12 @@ pub struct Text {
    pub font: String,
    pub align: String,
    pub modifiers: Vec<Modifier>,
+   pub events: Vec<(Event, Box<FnMut(&mut Events, &mut MutableComponent)>)>,
 }
 impl Text {
    pub fn new(font: &str, cs: &str) -> Component {
       Component::Text(Text { font:font.to_owned(), content: cs.to_owned(),
-                             align: "left".to_owned(), modifiers:Vec::new() })
+                             align: "left".to_owned(), modifiers:Vec::new(), events:Vec::new() })
    }
    pub fn translate_x(&mut self, scalar: f64, unit: &str) {
       self.modifiers.push(TranslateX::new(scalar, unit.to_owned()));
@@ -134,10 +136,12 @@ pub struct Rectangle {
    pub width: f64,
    pub wunit: String,
    pub modifiers: Vec<Modifier>,
+   pub events: Vec<(Event, Box<FnMut(&mut Events, &mut MutableComponent)>)>,
 }
 impl Rectangle {
    pub fn new(w: f64, wunit: &str, h: f64, hunit: &str) -> Component {
-      Component::Rectangle(Rectangle { width:w, wunit:wunit.to_owned(), height:h, hunit:hunit.to_owned(), modifiers:Vec::new() })
+      Component::Rectangle(Rectangle { width:w, wunit:wunit.to_owned(), height:h, hunit:hunit.to_owned(),
+                                       modifiers:Vec::new(), events:Vec::new() })
    }
    pub fn translate_x(mut self, scalar: f64, unit: String) -> Rectangle {
       self.modifiers.push(TranslateX::new(scalar, unit.to_owned()));
@@ -206,16 +210,31 @@ impl Component {
       self
    }
    pub fn clicked<F>(mut self, f: F) -> Component 
-          where F: FnMut(&mut Events, &mut MutableComponent) {
-      self
+          where F: 'static + FnMut(&mut Events, &mut MutableComponent) {
+      match self {
+         Component::Text(ref mut m) => { m.events.push((Event::Clicked,Box::new(f))); }
+         Component::Image(ref mut m) => { m.events.push((Event::Clicked,Box::new(f))); }
+         Component::Rectangle(ref mut m) => { m.events.push((Event::Clicked,Box::new(f))); }
+         _ => {}
+      }; self
    }
    pub fn hovered<F>(mut self, f: F) -> Component 
-          where F: FnMut(&mut Events, &mut MutableComponent) {
-      self
+          where F: 'static + FnMut(&mut Events, &mut MutableComponent) {
+      match self {
+         Component::Text(ref mut m) => { m.events.push((Event::Hovered,Box::new(f))); }
+         Component::Image(ref mut m) => { m.events.push((Event::Hovered,Box::new(f))); }
+         Component::Rectangle(ref mut m) => { m.events.push((Event::Hovered,Box::new(f))); }
+         _ => {}
+      }; self
    }
    pub fn always<F>(mut self, f: F) -> Component 
-          where F: FnMut(&mut Events, &mut MutableComponent) {
-      self
+          where F: 'static + FnMut(&mut Events, &mut MutableComponent) {
+      match self {
+         Component::Text(ref mut m) => { m.events.push((Event::Always,Box::new(f))); }
+         Component::Image(ref mut m) => { m.events.push((Event::Always,Box::new(f))); }
+         Component::Rectangle(ref mut m) => { m.events.push((Event::Always,Box::new(f))); }
+         _ => {}
+      }; self
    }
 }
 
@@ -229,6 +248,12 @@ impl MutableComponent for Component {
          _ => {}
       }
    }
+}
+
+pub enum Event {
+   Clicked,
+   Hovered,
+   Always,
 }
 
 pub enum Modifier {
