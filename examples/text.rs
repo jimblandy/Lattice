@@ -12,8 +12,8 @@ fn main() {
        v.append(Text::new("assets/Macondo-Regular.ttf", "paragraph justified paragraph justified paragraph justified paragraph justified paragraph justified
 paragraph justified paragraph justified paragraph justified paragraph justified paragraph justified paragraph justified paragraph justified paragraph justified")
                .color([0.4, 0.4, 1.0, 1.0])
-               .scale(3.0, "em")
-               .width(400.0, "px")
+               .scale(2.0, "em")
+               .width(25.0, "%")
                .justify()
                .translate_x(150.0, "px")
                .translate_y(150.0, "px"));

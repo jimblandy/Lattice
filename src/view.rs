@@ -1,20 +1,20 @@
-pub struct SizeWidthDynamic {
+pub struct Width {
    pub scalar: f64,
    pub unit: String,
 }
-impl SizeWidthDynamic {
+impl Width {
    pub fn new(scalar: f64, unit: String) -> Modifier {
-      Modifier::SizeWidthDynamic(SizeWidthDynamic { scalar:scalar, unit:unit })
+      Modifier::Width(Width { scalar:scalar, unit:unit })
    }
 }
 
-pub struct SizeHeightDynamic {
+pub struct Height {
    pub scalar: f64,
    pub unit: String,
 }
-impl SizeHeightDynamic {
+impl Height {
    pub fn new(scalar: f64, unit: String) -> Modifier {
-      Modifier::SizeHeightDynamic(SizeHeightDynamic { scalar:scalar, unit:unit })
+      Modifier::Height(Height { scalar:scalar, unit:unit })
    }
 }
 
@@ -38,22 +38,22 @@ impl TranslateY {
    }
 }
 
+pub struct Scale {
+   pub scalar: f64,
+   pub unit: String
+}
+impl Scale {
+   pub fn new(scalar: f64, unit: &str) -> Modifier {
+      Modifier::Scale(Scale { scalar:scalar, unit:unit.to_owned() })
+   }
+}
+
 pub struct Color {
    pub rgba: [f64; 4],
 }
 impl Color {
    pub fn new(rgba: [f64; 4]) -> Modifier {
       Modifier::Color(Color { rgba:rgba })
-   }
-}
-
-pub struct Scale {
-   pub scale: f64,
-   pub unit: String
-}
-impl Scale {
-   pub fn new(scale: f64, unit: &str) -> Modifier {
-      Modifier::Scale(Scale { scale:scale, unit:unit.to_owned() })
    }
 }
 
@@ -75,10 +75,10 @@ impl Image {
       self.modifiers.push(TranslateY::new(scalar, unit.to_owned()));
    }
    pub fn width(&mut self, scalar: f64, unit: &str) {
-      self.modifiers.push(SizeWidthDynamic::new(scalar, unit.to_owned()));
+      self.modifiers.push(Width::new(scalar, unit.to_owned()));
    }
    pub fn height(&mut self, scalar: f64, unit: &str) {
-      self.modifiers.push(SizeHeightDynamic::new(scalar, unit.to_owned()));
+      self.modifiers.push(Height::new(scalar, unit.to_owned()));
    }
 }
 
@@ -100,10 +100,10 @@ impl Text {
       self.modifiers.push(TranslateY::new(scalar, unit.to_owned()));
    }
    pub fn width(&mut self, scalar: f64, unit: &str) {
-      self.modifiers.push(SizeWidthDynamic::new(scalar, unit.to_owned()));
+      self.modifiers.push(Width::new(scalar, unit.to_owned()));
    }
    pub fn height(&mut self, scalar: f64, unit: &str) {
-      self.modifiers.push(SizeHeightDynamic::new(scalar, unit.to_owned()));
+      self.modifiers.push(Height::new(scalar, unit.to_owned()));
    }
    pub fn color(&mut self, rgba: [f64; 4]) {
       self.modifiers.push(Color::new(rgba));
@@ -197,8 +197,8 @@ pub enum Modifier {
    Scale(Scale),
    TranslateX(TranslateX),
    TranslateY(TranslateY),
-   SizeWidthDynamic(SizeWidthDynamic),
-   SizeHeightDynamic(SizeHeightDynamic),
+   Width(Width),
+   Height(Height),
 }
 
 pub struct View {

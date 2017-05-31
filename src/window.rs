@@ -135,17 +135,19 @@ impl Window {
                   for mi in 0..image.modifiers().len() {
                      let ref m = image.modifiers()[mi];
                      match *m {
-                        Modifier::SizeWidthDynamic(ref wd) => { 
+                        Modifier::Width(ref wd) => { 
                            match wd.unit.as_str() {
                               "%" => { w = (wd.scalar * width_pct) as i64; }
                               "em" => { w = (wd.scalar * em) as i64; }
+                              "px" => { w = (wd.scalar) as i64; }
                               u => { panic!("Invalid unit: {}", u); }
                            }
                         }
-                        Modifier::SizeHeightDynamic(ref hd) => { 
+                        Modifier::Height(ref hd) => { 
                            match hd.unit.as_str() {
                               "%" => { h = (hd.scalar * height_pct) as i64; }
                               "em" => { h = (hd.scalar * em) as i64; }
+                              "px" => { h = (hd.scalar) as i64; }
                               u => { panic!("Invalid unit: {}", u); }
                            }
                         }
@@ -163,13 +165,23 @@ impl Window {
                   let font = fonts.get(text.font.as_str()).expect(format!("Could not find font: {}", text.font).as_str());
 
                   let mut pixel_height = em as usize;
+                  let mut width = 9999999 as usize;
                   for mi in 0..text.modifiers.len() {
                      match text.modifiers[mi] {
                         Modifier::Scale(ref s) => {
                            match s.unit.as_str() {
-                             "em" => { pixel_height = (em * s.scale).ceil() as usize; }
-                             "%" => { pixel_height = (height_pct * s.scale).ceil() as usize; }
-                             _ => {}
+                             "em" => { pixel_height = (em * s.scalar).ceil() as usize; }
+                             "%" => { pixel_height = (height_pct * s.scalar).ceil() as usize; }
+                             "px" => { pixel_height = (s.scalar) as usize; }
+                              u => { panic!("Invalid unit: {}", u); }
+                           }
+                        }
+                        Modifier::Width(ref w) => {
+                           match w.unit.as_str() {
+                             "em" => { width = (em * w.scalar).ceil() as usize; }
+                             "%" => { width = (height_pct * w.scalar).ceil() as usize; }
+                             "px" => { width = (w.scalar) as usize; }
+                              u => { panic!("Invalid unit: {}", u); }
                            }
                         }
                         _ => {}
@@ -224,7 +236,6 @@ impl Window {
                      };
                   }
 
-                  let width = 9999999 as usize;
                   let line_height = pixel_height as usize;
                   let justify = false;
                   let positioned = {
