@@ -59,6 +59,16 @@ impl Color {
    }
 }
 
+pub struct Shadow {
+   pub boxed: [i64; 4],
+   pub rgba: [f64; 4],
+}
+impl Shadow {
+   pub fn new(boxed: [i64; 4], rgba: [f64; 4]) -> Modifier {
+      Modifier::Shadow(Shadow { boxed:boxed, rgba:rgba })
+   }
+}
+
 pub struct Image {
    pub name: String,
    pub modifiers: Vec<Modifier>,
@@ -214,6 +224,10 @@ pub trait MutableComponent {
 }
 impl MutableComponent for Component {
    fn shadow(&mut self, d: [i64; 4], c: [f64; 4]) {
+      match *self {
+         Component::Text(ref mut m) => { m.modifiers.push(Shadow::new(d,c)) }
+         _ => {}
+      }
    }
 }
 
@@ -224,6 +238,7 @@ pub enum Modifier {
    TranslateY(TranslateY),
    Width(Width),
    Height(Height),
+   Shadow(Shadow),
 }
 
 pub struct View {
