@@ -237,7 +237,6 @@ impl Window {
                   }
 
                   let line_height = pixel_height as usize;
-                  let justify = false;
                   let positioned = {
                      use self::unicode_normalization::UnicodeNormalization;
                      let mut result = Vec::new();
@@ -262,17 +261,37 @@ impl Window {
                         if caret + glyph_width > width {
                            caret = 0; height += line_height;
                         }
-                        result.push( (caret, height, c, line_height) );
+                        result.push( (caret, height, c, line_height, glyph_width) );
                         caret += glyph_width;
                      }
-                     if justify {
-                        panic!("TODO: implement justify");
+                     if text.align.as_str() == "justify" {
+                        let just_width = width;
+                        let mut prev_line = 0;
+                        for ri in 0..result.len() {
+                           let (caret, height, c, line_height, glyph_width) = result[ri];
+                           if caret == 0 {
+                              let mut real_width = 0;
+                              let mut char_count = 0;
+                              for si in prev_line..ri {
+                                 let (caret, height, c, line_height, glyph_width) = result[si];
+                                 real_width += glyph_width;
+                                 char_count += 1;
+                              }
+                              let just_gap = ((just_width - real_width) as f64) / (char_count as f64);
+                              for si in prev_line..ri {
+                                 let (mut caret, height, c, line_height, glyph_width) = result[si];
+                                 caret += (((si-prev_line) as f64) * just_gap).floor() as usize;
+                                 result[si] = (caret, height, c, line_height, glyph_width);
+                              }
+                              prev_line = ri;
+                           }
+                        }
                      }
                      result
                   };
 
                   for pi in 0..positioned.len() {
-                     let (caret, height, c, line_height) = positioned[pi];
+                     let (caret, height, c, line_height, glyph_width) = positioned[pi];
                      let (glyph_width, ref mut base_glyph) = match glyphs.get(&(c,line_height)) {
                         Some(c) => {
                            let (w, ref g) = *c;
