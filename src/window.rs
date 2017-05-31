@@ -21,6 +21,7 @@ use std::collections::{HashMap};
 use std::path::Path;
 use std::fs::File;
 use std::io::{Write, Read, Seek, SeekFrom};
+use std::rc::*;
 
 pub struct Window {
    title: String,
@@ -211,6 +212,22 @@ impl Window {
                            }
                         }
                         _ => {}
+                     }
+                  }
+                  for ei in 0..text.events.len() {
+                     match text.events[ei] {
+                        (ref e @ ::view::Event::Always, ref f) => {
+                           let f = f.borrow();
+                           //f(&mut events, e);
+                           println!("bind event always.");
+                        }
+                        (ref e @ ::view::Event::Clicked, ref f) => {
+                           println!("bind event clicked.");
+                        }
+                        (ref e @ ::view::Event::Hovered, ref f) => {
+                           println!("bind event hovered.");
+                        }
+                        (ref u,_) => { panic!("Unexpected ViewEvent: {:?}", u) }
                      }
                   }
 

@@ -1,4 +1,6 @@
 use ::events::Events;
+use std::rc::Rc;
+use std::cell::RefCell;
 
 pub struct Width {
    pub scalar: f64,
@@ -72,7 +74,7 @@ impl Shadow {
 pub struct Image {
    pub name: String,
    pub modifiers: Vec<Modifier>,
-   pub events: Vec<(Event, Box<FnMut(&mut Events, &mut MutableComponent)>)>,
+   pub events: Vec<(Event, Rc<RefCell<FnMut(&mut Events, &mut MutableComponent)>>)>,
 }
 impl Image {
    pub fn new(name: &str) -> Component {
@@ -85,7 +87,7 @@ pub struct Text {
    pub font: String,
    pub align: String,
    pub modifiers: Vec<Modifier>,
-   pub events: Vec<(Event, Box<FnMut(&mut Events, &mut MutableComponent)>)>,
+   pub events: Vec<(Event, Rc<RefCell<FnMut(&mut Events, &mut MutableComponent)>>)>,
 }
 impl Text {
    pub fn new(font: &str, cs: &str) -> Component {
@@ -100,7 +102,7 @@ pub struct Rectangle {
    pub width: f64,
    pub wunit: String,
    pub modifiers: Vec<Modifier>,
-   pub events: Vec<(Event, Box<FnMut(&mut Events, &mut MutableComponent)>)>,
+   pub events: Vec<(Event, Rc<RefCell<FnMut(&mut Events, &mut MutableComponent)>>)>,
 }
 impl Rectangle {
    pub fn new(w: f64, wunit: &str, h: f64, hunit: &str) -> Component {
@@ -111,6 +113,22 @@ impl Rectangle {
 
 macro_rules! push_event {
    ($base: expr, $cls: ident, $fnx: ident) => {{
+      let ref mut m = $base;
+      loop {
+         let mut found = false;
+         for mi in 0..m.len() {
+            match m[mi].0 {
+               Event::$cls => {
+                  m.remove(mi);
+                  found = true;
+                  break;
+               }
+               _ => {}
+            }
+         }
+         if !found { break; }
+      }
+      m.push( (Event::$cls, Rc::new(RefCell::new($fnx))) );
    }};
 }
 macro_rules! push_modifier {
@@ -244,6 +262,7 @@ impl MutableComponent for Component {
    }
 }
 
+#[derive(Debug)]
 pub enum Event {
    Clicked,
    Hovered,
