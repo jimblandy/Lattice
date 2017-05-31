@@ -166,6 +166,8 @@ impl Window {
 
                   let mut pixel_height = em as usize;
                   let mut width = 9999999 as usize;
+                  let mut pos_x = 0 as usize;
+                  let mut pos_y = 0 as usize;
                   for mi in 0..text.modifiers.len() {
                      match text.modifiers[mi] {
                         Modifier::Scale(ref s) => {
@@ -181,6 +183,22 @@ impl Window {
                              "em" => { width = (em * w.scalar).ceil() as usize; }
                              "%" => { width = (height_pct * w.scalar).ceil() as usize; }
                              "px" => { width = (w.scalar) as usize; }
+                              u => { panic!("Invalid unit: {}", u); }
+                           }
+                        }
+                        Modifier::TranslateX(ref t) => {
+                           match t.unit.as_str() {
+                             "em" => { pos_x = (em * t.scalar).ceil() as usize; }
+                             "%" => { pos_x = (width_pct * t.scalar).ceil() as usize; }
+                             "px" => { pos_x = (t.scalar) as usize; }
+                              u => { panic!("Invalid unit: {}", u); }
+                           }
+                        }
+                        Modifier::TranslateY(ref t) => {
+                           match t.unit.as_str() {
+                             "em" => { pos_y = (em * t.scalar).ceil() as usize; }
+                             "%" => { pos_y = (height_pct * t.scalar).ceil() as usize; }
+                             "px" => { pos_y = (t.scalar) as usize; }
                               u => { panic!("Invalid unit: {}", u); }
                            }
                         }
@@ -324,8 +342,8 @@ impl Window {
                         }
                         _ => { continue; }
                      };
-                     let x = caret;
-                     let y = height;
+                     let x = pos_x + caret;
+                     let y = pos_y + height;
                      canvas.copy(base_glyph, None, Some(Rect::new((x as i32), (y as i32), (glyph_width as u32), (line_height as u32)))).unwrap();
                   }
                }

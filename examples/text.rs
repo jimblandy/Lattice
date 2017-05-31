@@ -21,10 +21,10 @@ paragraph justified paragraph justified paragraph justified paragraph justified 
 paragraph right aligned paragraph right aligned paragraph right aligned paragraph right aligned paragraph right aligned")
                .color([1.0, 0.4, 0.4, 1.0])
                .scale(3.0, "em")
-               .width(25.0, "%")
+               .width(40.0, "%")
                .align("right")
-               .translate_x(60.0, "%")
-               .translate_y(60.0, "%"));
+               .translate_x(50.0, "%")
+               .translate_y(30.0, "%"));
        v
     });
 }
