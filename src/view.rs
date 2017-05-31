@@ -158,6 +158,11 @@ pub enum Component {
    Text(Text),
    Rectangle(Rectangle),
 }
+pub enum BorrowComponent<'a> {
+   Image(&'a mut Image),
+   Text(&'a mut Text),
+   Rectangle(&'a mut Rectangle),
+}
 impl Component {
    pub fn width(mut self, scalar: f64, unit: &str) -> Component {
       match self {
@@ -262,7 +267,7 @@ impl MutableComponent for Component {
    }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Event {
    Clicked,
    Hovered,
