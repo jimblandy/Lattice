@@ -1,3 +1,5 @@
+use ::events::Events;
+
 pub struct Width {
    pub scalar: f64,
    pub unit: String,
@@ -189,6 +191,29 @@ impl Component {
          Component::Text(ref mut m) => { m.align(align); }
          _ => {}
       }; self
+   }
+   pub fn shadow(mut self, d: [i64; 4], c: [f64; 4]) -> Component {
+      self
+   }
+   pub fn clicked<F>(mut self, f: F) -> Component 
+          where F: FnMut(&mut Events, &mut MutableComponent) {
+      self
+   }
+   pub fn hovered<F>(mut self, f: F) -> Component 
+          where F: FnMut(&mut Events, &mut MutableComponent) {
+      self
+   }
+   pub fn always<F>(mut self, f: F) -> Component 
+          where F: FnMut(&mut Events, &mut MutableComponent) {
+      self
+   }
+}
+
+pub trait MutableComponent {
+   fn shadow(&mut self, [i64; 4], [f64; 4]);
+}
+impl MutableComponent for Component {
+   fn shadow(&mut self, d: [i64; 4], c: [f64; 4]) {
    }
 }
 
