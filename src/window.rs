@@ -286,6 +286,31 @@ impl Window {
                               prev_line = ri;
                            }
                         }
+                     } else if text.align.as_str() == "right" {
+                        let just_width = width;
+                        let mut prev_line = 0;
+                        for ri in 0..result.len() {
+                           let (caret, height, c, line_height, glyph_width) = result[ri];
+                           if caret == 0 {
+                              let mut real_width = 0;
+                              let mut base_gap = 0;
+                              for si in prev_line..ri {
+                                 let (caret, height, c, line_height, glyph_width) = result[si];
+                                 real_width += glyph_width;
+                                 if si!=(ri-1) || (c != ' ' && c != '\t') {
+                                 } else {
+                                    base_gap += glyph_width;
+                                 }
+                              }
+                              let gap = base_gap + just_width - real_width;
+                              for si in prev_line..ri {
+                                 let (mut caret, height, c, line_height, glyph_width) = result[si];
+                                 caret += gap;
+                                 result[si] = (caret, height, c, line_height, glyph_width);
+                              }
+                              prev_line = ri;
+                           }
+                        }
                      }
                      result
                   };

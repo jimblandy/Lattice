@@ -111,8 +111,8 @@ impl Text {
    pub fn scale(&mut self, scale: f64, unit: &str) {
       self.modifiers.push(Scale::new(scale, unit));
    }
-   pub fn justify(&mut self) {
-      self.align = "justify".to_owned()
+   pub fn align(&mut self, align: &str) {
+      self.align = align.to_owned()
    }
 }
 
@@ -184,9 +184,9 @@ impl Component {
          _ => {}
       }; self
    }
-   pub fn justify(mut self) -> Component {
+   pub fn align(mut self, align: &str) -> Component {
       match self {
-         Component::Text(ref mut m) => { m.justify(); }
+         Component::Text(ref mut m) => { m.align(align); }
          _ => {}
       }; self
    }
