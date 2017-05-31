@@ -12,6 +12,7 @@ fn main() {
        v.append(Text::new("assets/Macondo-Regular.ttf", "paragraph justified paragraph justified paragraph justified paragraph justified paragraph justified
 paragraph justified paragraph justified paragraph justified paragraph justified paragraph justified paragraph justified paragraph justified paragraph justified")
                .color([0.4, 0.4, 1.0, 1.0])
+               .shadow([-3,-3,3,3],[1.0,1.0,1.0,1.0])
                .scale(2.0, "em")
                .width(25.0, "%")
                .align("justify")

@@ -78,21 +78,6 @@ impl Image {
    pub fn new(name: &str) -> Component {
       Component::Image(Image { name: name.to_owned(), modifiers:Vec::new(), events:Vec::new() })
    }
-   pub fn modifiers(&self) -> &Vec<Modifier> {
-      &self.modifiers
-   }
-   pub fn translate_x(&mut self, scalar: f64, unit: &str) {
-      self.modifiers.push(TranslateX::new(scalar, unit.to_owned()));
-   }
-   pub fn translate_y(&mut self, scalar: f64, unit: &str) {
-      self.modifiers.push(TranslateY::new(scalar, unit.to_owned()));
-   }
-   pub fn width(&mut self, scalar: f64, unit: &str) {
-      self.modifiers.push(Width::new(scalar, unit.to_owned()));
-   }
-   pub fn height(&mut self, scalar: f64, unit: &str) {
-      self.modifiers.push(Height::new(scalar, unit.to_owned()));
-   }
 }
 
 pub struct Text {
@@ -106,27 +91,6 @@ impl Text {
    pub fn new(font: &str, cs: &str) -> Component {
       Component::Text(Text { font:font.to_owned(), content: cs.to_owned(),
                              align: "left".to_owned(), modifiers:Vec::new(), events:Vec::new() })
-   }
-   pub fn translate_x(&mut self, scalar: f64, unit: &str) {
-      self.modifiers.push(TranslateX::new(scalar, unit.to_owned()));
-   }
-   pub fn translate_y(&mut self, scalar: f64, unit: &str) {
-      self.modifiers.push(TranslateY::new(scalar, unit.to_owned()));
-   }
-   pub fn width(&mut self, scalar: f64, unit: &str) {
-      self.modifiers.push(Width::new(scalar, unit.to_owned()));
-   }
-   pub fn height(&mut self, scalar: f64, unit: &str) {
-      self.modifiers.push(Height::new(scalar, unit.to_owned()));
-   }
-   pub fn color(&mut self, rgba: [f64; 4]) {
-      self.modifiers.push(Color::new(rgba));
-   }
-   pub fn scale(&mut self, scale: f64, unit: &str) {
-      self.modifiers.push(Scale::new(scale, unit));
-   }
-   pub fn align(&mut self, align: &str) {
-      self.align = align.to_owned()
    }
 }
 
@@ -143,14 +107,6 @@ impl Rectangle {
       Component::Rectangle(Rectangle { width:w, wunit:wunit.to_owned(), height:h, hunit:hunit.to_owned(),
                                        modifiers:Vec::new(), events:Vec::new() })
    }
-   pub fn translate_x(mut self, scalar: f64, unit: String) -> Rectangle {
-      self.modifiers.push(TranslateX::new(scalar, unit.to_owned()));
-      self
-   }
-   pub fn translate_y(mut self, scalar: f64, unit: &str) -> Rectangle {
-      self.modifiers.push(TranslateY::new(scalar, unit.to_owned()));
-      self
-   }
 }
 
 pub enum Component {
@@ -162,77 +118,90 @@ pub enum Component {
 impl Component {
    pub fn width(mut self, scalar: f64, unit: &str) -> Component {
       match self {
-         Component::Image(ref mut m) => { m.width(scalar,unit); }
-         Component::Text(ref mut m) => { m.width(scalar,unit); }
+         Component::Text(ref mut m) => { push_modifier!(m.modifiers, Width, (scalar, unit)) }
+         Component::Image(ref mut m) => { push_modifier!(m.modifiers, Width, (scalar, unit)) }
+         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Width, (scalar, unit)) }
          _ => {}
       }; self
    }
    pub fn height(mut self, scalar: f64, unit: &str) -> Component {
       match self {
-         Component::Image(ref mut m) => { m.height(scalar,unit); }
-         Component::Text(ref mut m) => { m.height(scalar,unit); }
+         Component::Text(ref mut m) => { push_modifier!(m.modifiers, Height, (scalar, unit)) }
+         Component::Image(ref mut m) => { push_modifier!(m.modifiers, Height, (scalar, unit)) }
+         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Height, (scalar, unit)) }
          _ => {}
       }; self
    }
    pub fn translate_x(mut self, scalar: f64, unit: &str) -> Component {
       match self {
-         Component::Image(ref mut m) => { m.translate_x(scalar,unit); }
-         Component::Text(ref mut m) => { m.translate_x(scalar,unit); }
+         Component::Text(ref mut m) => { push_modifier!(m.modifiers, TranslateX, (scalar, unit)) }
+         Component::Image(ref mut m) => { push_modifier!(m.modifiers, TranslateX, (scalar, unit)) }
+         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, TranslateX, (scalar, unit)) }
          _ => {}
       }; self
    }
    pub fn translate_y(mut self, scalar: f64, unit: &str) -> Component {
       match self {
-         Component::Image(ref mut m) => { m.translate_y(scalar,unit); }
-         Component::Text(ref mut m) => { m.translate_y(scalar,unit); }
+         Component::Text(ref mut m) => { push_modifier!(m.modifiers, TranslateY, (scalar, unit)) }
+         Component::Image(ref mut m) => { push_modifier!(m.modifiers, TranslateY, (scalar, unit)) }
+         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, TranslateY, (scalar, unit)) }
          _ => {}
       }; self
    }
    pub fn color(mut self, rgba: [f64; 4]) -> Component {
       match self {
-         Component::Text(ref mut m) => { m.color(rgba); }
+         Component::Text(ref mut m) => { push_modifier!(m.modifiers, Color, (rgba)) }
+         Component::Image(ref mut m) => { push_modifier!(m.modifiers, Color, (rgba)) }
+         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Color, (rgba)) }
          _ => {}
       }; self
    }
    pub fn scale(mut self, scale: f64, unit: &str) -> Component {
       match self {
-         Component::Text(ref mut m) => { m.scale(scale, unit); }
+         Component::Text(ref mut m) => { push_modifier!(m.modifiers, Scale, (scalar, unit)) }
+         Component::Image(ref mut m) => { push_modifier!(m.modifiers, Scale, (scalar, unit)) }
+         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Scale, (scalar, unit)) }
          _ => {}
       }; self
    }
    pub fn align(mut self, align: &str) -> Component {
       match self {
-         Component::Text(ref mut m) => { m.align(align); }
+         Component::Text(ref mut m) => { m.align = align; }
          _ => {}
       }; self
    }
    pub fn shadow(mut self, d: [i64; 4], c: [f64; 4]) -> Component {
-      self
+      match self {
+         Component::Text(ref mut m) => { push_modifier!(m.modifiers, Shadow) }
+         Component::Image(ref mut m) => { push_modifier!(m.modifiers, Shadow) }
+         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Shadow) }
+         _ => {}
+      }; self
    }
    pub fn clicked<F>(mut self, f: F) -> Component 
           where F: 'static + FnMut(&mut Events, &mut MutableComponent) {
       match self {
-         Component::Text(ref mut m) => { m.events.push((Event::Clicked,Box::new(f))); }
-         Component::Image(ref mut m) => { m.events.push((Event::Clicked,Box::new(f))); }
-         Component::Rectangle(ref mut m) => { m.events.push((Event::Clicked,Box::new(f))); }
+         Component::Text(ref mut m) => { push_event!(m.events, Clicked, f); }
+         Component::Image(ref mut m) => { push_event!(m.events, Clicked, f); }
+         Component::Rectangle(ref mut m) => { push_event!(m.events, Clicked, f); }
          _ => {}
       }; self
    }
    pub fn hovered<F>(mut self, f: F) -> Component 
           where F: 'static + FnMut(&mut Events, &mut MutableComponent) {
       match self {
-         Component::Text(ref mut m) => { m.events.push((Event::Hovered,Box::new(f))); }
-         Component::Image(ref mut m) => { m.events.push((Event::Hovered,Box::new(f))); }
-         Component::Rectangle(ref mut m) => { m.events.push((Event::Hovered,Box::new(f))); }
+         Component::Text(ref mut m) => { push_event!(m.events, Hovered, f); }
+         Component::Image(ref mut m) => { push_event!(m.events, Hovered, f); }
+         Component::Rectangle(ref mut m) => { push_event!(m.events, Hovered, f); }
          _ => {}
       }; self
    }
    pub fn always<F>(mut self, f: F) -> Component 
           where F: 'static + FnMut(&mut Events, &mut MutableComponent) {
       match self {
-         Component::Text(ref mut m) => { m.events.push((Event::Always,Box::new(f))); }
-         Component::Image(ref mut m) => { m.events.push((Event::Always,Box::new(f))); }
-         Component::Rectangle(ref mut m) => { m.events.push((Event::Always,Box::new(f))); }
+         Component::Text(ref mut m) => { push_event!(m.events, Always, f); }
+         Component::Image(ref mut m) => { push_event!(m.events, Always, f); }
+         Component::Rectangle(ref mut m) => { push_event!(m.events, Always, f); }
          _ => {}
       }; self
    }

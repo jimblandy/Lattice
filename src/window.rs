@@ -169,8 +169,12 @@ impl Window {
                   let mut pos_x = 0 as usize;
                   let mut pos_y = 0 as usize;
                   let mut color = [1.0, 1.0, 1.0, 1.0];
+                  let mut shadow = ([0,0,0,0],[0.0,0.0,0.0,0.0]);
                   for mi in 0..text.modifiers.len() {
                      match text.modifiers[mi] {
+                        Modifier::Shadow(ref s) => {
+                           shadow = (s.boxed.clone(), s.rgba.clone());
+                        }
                         Modifier::Color(ref s) => {
                            color = s.rgba.clone();
                         }
@@ -342,6 +346,16 @@ impl Window {
                      let ref mut base_glyph = glyphs.get_mut(&(c,line_height)).expect("glyph").1;
                      let x = pos_x + caret;
                      let y = pos_y + height;
+                     let (shadow_box, sc) = shadow;
+                     if shadow_box[0]<shadow_box[2] || shadow_box[1]<shadow_box[2] {
+                        println!("shadow: {:?} {:?}", shadow_box, sc);
+                        base_glyph.set_color_mod((sc[0]*255.0) as u8, (sc[1]*255.0) as u8, (sc[2]*255.0) as u8);
+                        base_glyph.set_alpha_mod((sc[3]*255.0) as u8);
+                        for sx in (shadow_box[0]-1) .. shadow_box[2] {
+                        for sy in (shadow_box[1]-1) .. shadow_box[3] {
+                           canvas.copy(base_glyph, None, Some(Rect::new(((x+sx as usize) as i32), ((y+sy as usize) as i32), (glyph_width as u32), (line_height as u32)))).unwrap();
+                        }}
+                     }
                      base_glyph.set_color_mod((color[0]*255.0) as u8, (color[1]*255.0) as u8, (color[2]*255.0) as u8);
                      base_glyph.set_alpha_mod((color[3]*255.0) as u8);
                      canvas.copy(base_glyph, None, Some(Rect::new((x as i32), (y as i32), (glyph_width as u32), (line_height as u32)))).unwrap();

@@ -11,6 +11,7 @@ fn main() {
     w.start(|events| {
        let mut v = View::new();
        v.append(Text::new("assets/Macondo-Regular.ttf", "hover text")
+               .always(|e, i| { i.shadow([0,0,0,0], [0.0, 0.0, 0.0, 0.0]); })
                .hovered(|e, i| { i.shadow([-3, -3, 3, 3], [0.4, 0.4, 0.4, 1.0]); })
                .color([0.4, 0.4, 1.0, 1.0])
                .scale(2.0, "em")
