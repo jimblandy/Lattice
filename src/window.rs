@@ -132,8 +132,8 @@ impl Window {
                   let mut w = -1i64;
                   let mut h = -1i64;
 
-                  for mi in 0..image.modifiers().len() {
-                     let ref m = image.modifiers()[mi];
+                  for mi in 0..image.modifiers.len() {
+                     let ref m = image.modifiers[mi];
                      match *m {
                         Modifier::Width(ref wd) => { 
                            match wd.unit.as_str() {
@@ -348,12 +348,13 @@ impl Window {
                      let y = pos_y + height;
                      let (shadow_box, sc) = shadow;
                      if shadow_box[0]<shadow_box[2] || shadow_box[1]<shadow_box[2] {
-                        println!("shadow: {:?} {:?}", shadow_box, sc);
                         base_glyph.set_color_mod((sc[0]*255.0) as u8, (sc[1]*255.0) as u8, (sc[2]*255.0) as u8);
                         base_glyph.set_alpha_mod((sc[3]*255.0) as u8);
                         for sx in (shadow_box[0]-1) .. shadow_box[2] {
+                           let mut x = ((x as i64) + sx); if x<0 { continue; }; let x = x as i32;
                         for sy in (shadow_box[1]-1) .. shadow_box[3] {
-                           canvas.copy(base_glyph, None, Some(Rect::new(((x+sx as usize) as i32), ((y+sy as usize) as i32), (glyph_width as u32), (line_height as u32)))).unwrap();
+                           let mut y = ((y as i64) + sy); if y<0 { continue; }; let y = y as i32;
+                           canvas.copy(base_glyph, None, Some(Rect::new(x, y, (glyph_width as u32), (line_height as u32)))).unwrap();
                         }}
                      }
                      base_glyph.set_color_mod((color[0]*255.0) as u8, (color[1]*255.0) as u8, (color[2]*255.0) as u8);

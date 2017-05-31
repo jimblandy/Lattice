@@ -5,8 +5,8 @@ pub struct Width {
    pub unit: String,
 }
 impl Width {
-   pub fn new(scalar: f64, unit: String) -> Modifier {
-      Modifier::Width(Width { scalar:scalar, unit:unit })
+   pub fn new(scalar: f64, unit: &str) -> Modifier {
+      Modifier::Width(Width { scalar:scalar, unit:unit.to_owned() })
    }
 }
 
@@ -15,8 +15,8 @@ pub struct Height {
    pub unit: String,
 }
 impl Height {
-   pub fn new(scalar: f64, unit: String) -> Modifier {
-      Modifier::Height(Height { scalar:scalar, unit:unit })
+   pub fn new(scalar: f64, unit: &str) -> Modifier {
+      Modifier::Height(Height { scalar:scalar, unit:unit.to_owned() })
    }
 }
 
@@ -25,8 +25,8 @@ pub struct TranslateX {
    pub unit: String,
 }
 impl TranslateX {
-   pub fn new(scalar: f64, unit: String) -> Modifier {
-      Modifier::TranslateX(TranslateX { scalar:scalar, unit:unit })
+   pub fn new(scalar: f64, unit: &str) -> Modifier {
+      Modifier::TranslateX(TranslateX { scalar:scalar, unit:unit.to_owned() })
    }
 }
 
@@ -35,8 +35,8 @@ pub struct TranslateY {
    pub unit: String,
 }
 impl TranslateY {
-   pub fn new(scalar: f64, unit: String) -> Modifier {
-      Modifier::TranslateY(TranslateY { scalar:scalar, unit:unit })
+   pub fn new(scalar: f64, unit: &str) -> Modifier {
+      Modifier::TranslateY(TranslateY { scalar:scalar, unit:unit.to_owned() })
    }
 }
 
@@ -109,6 +109,31 @@ impl Rectangle {
    }
 }
 
+macro_rules! push_event {
+   ($base: expr, $cls: ident, $fnx: ident) => {{
+   }};
+}
+macro_rules! push_modifier {
+   ($base: expr, $cls: ident, ( $($arg:expr ,)* ) ) => {{
+      let ref mut m = $base;
+      loop {
+         let mut found = false;
+         for mi in 0..m.len() {
+            match m[mi] {
+               Modifier::$cls(_) => {
+                  m.remove(mi);
+                  found = true;
+                  break;
+               }
+               _ => {}
+            }
+         }
+         if !found { break; }
+      }
+      m.push( $cls::new( $($arg),* ) );
+   }}
+}
+
 pub enum Component {
    Modifier(Modifier),
    Image(Image),
@@ -118,63 +143,63 @@ pub enum Component {
 impl Component {
    pub fn width(mut self, scalar: f64, unit: &str) -> Component {
       match self {
-         Component::Text(ref mut m) => { push_modifier!(m.modifiers, Width, (scalar, unit)) }
-         Component::Image(ref mut m) => { push_modifier!(m.modifiers, Width, (scalar, unit)) }
-         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Width, (scalar, unit)) }
+         Component::Text(ref mut m) => { push_modifier!(m.modifiers, Width, (scalar, unit,)) }
+         Component::Image(ref mut m) => { push_modifier!(m.modifiers, Width, (scalar, unit,)) }
+         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Width, (scalar, unit,)) }
          _ => {}
       }; self
    }
    pub fn height(mut self, scalar: f64, unit: &str) -> Component {
       match self {
-         Component::Text(ref mut m) => { push_modifier!(m.modifiers, Height, (scalar, unit)) }
-         Component::Image(ref mut m) => { push_modifier!(m.modifiers, Height, (scalar, unit)) }
-         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Height, (scalar, unit)) }
+         Component::Text(ref mut m) => { push_modifier!(m.modifiers, Height, (scalar, unit,)) }
+         Component::Image(ref mut m) => { push_modifier!(m.modifiers, Height, (scalar, unit,)) }
+         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Height, (scalar, unit,)) }
          _ => {}
       }; self
    }
    pub fn translate_x(mut self, scalar: f64, unit: &str) -> Component {
       match self {
-         Component::Text(ref mut m) => { push_modifier!(m.modifiers, TranslateX, (scalar, unit)) }
-         Component::Image(ref mut m) => { push_modifier!(m.modifiers, TranslateX, (scalar, unit)) }
-         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, TranslateX, (scalar, unit)) }
+         Component::Text(ref mut m) => { push_modifier!(m.modifiers, TranslateX, (scalar, unit,)) }
+         Component::Image(ref mut m) => { push_modifier!(m.modifiers, TranslateX, (scalar, unit,)) }
+         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, TranslateX, (scalar, unit,)) }
          _ => {}
       }; self
    }
    pub fn translate_y(mut self, scalar: f64, unit: &str) -> Component {
       match self {
-         Component::Text(ref mut m) => { push_modifier!(m.modifiers, TranslateY, (scalar, unit)) }
-         Component::Image(ref mut m) => { push_modifier!(m.modifiers, TranslateY, (scalar, unit)) }
-         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, TranslateY, (scalar, unit)) }
+         Component::Text(ref mut m) => { push_modifier!(m.modifiers, TranslateY, (scalar, unit,)) }
+         Component::Image(ref mut m) => { push_modifier!(m.modifiers, TranslateY, (scalar, unit,)) }
+         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, TranslateY, (scalar, unit,)) }
          _ => {}
       }; self
    }
    pub fn color(mut self, rgba: [f64; 4]) -> Component {
       match self {
-         Component::Text(ref mut m) => { push_modifier!(m.modifiers, Color, (rgba)) }
-         Component::Image(ref mut m) => { push_modifier!(m.modifiers, Color, (rgba)) }
-         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Color, (rgba)) }
+         Component::Text(ref mut m) => { push_modifier!(m.modifiers, Color, (rgba,)) }
+         Component::Image(ref mut m) => { push_modifier!(m.modifiers, Color, (rgba,)) }
+         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Color, (rgba,)) }
          _ => {}
       }; self
    }
-   pub fn scale(mut self, scale: f64, unit: &str) -> Component {
+   pub fn scale(mut self, scalar: f64, unit: &str) -> Component {
       match self {
-         Component::Text(ref mut m) => { push_modifier!(m.modifiers, Scale, (scalar, unit)) }
-         Component::Image(ref mut m) => { push_modifier!(m.modifiers, Scale, (scalar, unit)) }
-         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Scale, (scalar, unit)) }
+         Component::Text(ref mut m) => { push_modifier!(m.modifiers, Scale, (scalar, unit,)) }
+         Component::Image(ref mut m) => { push_modifier!(m.modifiers, Scale, (scalar, unit,)) }
+         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Scale, (scalar, unit,)) }
          _ => {}
       }; self
    }
    pub fn align(mut self, align: &str) -> Component {
       match self {
-         Component::Text(ref mut m) => { m.align = align; }
+         Component::Text(ref mut m) => { m.align = align.to_owned(); }
          _ => {}
       }; self
    }
    pub fn shadow(mut self, d: [i64; 4], c: [f64; 4]) -> Component {
       match self {
-         Component::Text(ref mut m) => { push_modifier!(m.modifiers, Shadow) }
-         Component::Image(ref mut m) => { push_modifier!(m.modifiers, Shadow) }
-         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Shadow) }
+         Component::Text(ref mut m) => { push_modifier!(m.modifiers, Shadow, (d, c,)) }
+         Component::Image(ref mut m) => { push_modifier!(m.modifiers, Shadow, (d, c,)) }
+         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Shadow, (d, c,)) }
          _ => {}
       }; self
    }
