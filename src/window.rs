@@ -24,23 +24,21 @@ use std::io::{Write, Read, Seek, SeekFrom};
 use std::rc::*;
 use std::cell::*;
 
-pub struct Window<T> {
+pub struct Window {
    title: String,
    fullscreen: bool,
    assets: Vec<(String,Vec<u8>)>,
-   state: T
 }
 
-impl<T> Window<T> {
-   pub fn new(title: &str, t: T) -> Window<T> {
+impl Window {
+   pub fn new(title: &str) -> Window {
       Window {
          title: title.to_owned(),
          fullscreen: false,
          assets: Vec::new(),
-         state: t
       }
    }
-   pub fn set_fullscreen(mut self, fullscreen: bool) -> Window<T> {
+   pub fn set_fullscreen(mut self, fullscreen: bool) -> Window {
       self.fullscreen = fullscreen; self
    }
    pub fn load_assets(&mut self, mut assets: Vec<(&str,Vec<u8>)>) {
@@ -48,8 +46,8 @@ impl<T> Window<T> {
          self.assets.push((path.to_string(), contents));
       }
    }
-   pub fn start<F>(&self, cl: F) 
-       where F: Fn(&mut Events) -> View {
+   pub fn start<F>(&self, mut cl: F) 
+       where F: FnMut(&mut Events) -> View {
 
       let sdl_context = sdl2::init().unwrap();
       let video_subsystem = sdl_context.video().unwrap();
@@ -386,13 +384,13 @@ impl<T> Window<T> {
             };
             for mut ev in evs {
                match ev {
-                  (::view::Event::Always, f) => {
-                     (*(f.borrow()))(&mut events, c);
+                  (::view::Event::Always, mut f) => {
+                     f.borrow_mut()(&mut events, c);
                   }
-                  (::view::Event::Clicked, f) => {
+                  (::view::Event::Clicked, mut f) => {
                      //println!("bind event clicked.");
                   }
-                  (::view::Event::Hovered, f) => {
+                  (::view::Event::Hovered, mut f) => {
                      //println!("bind event hovered.");
                   }
                   (ref u,_) => { panic!("Unexpected ViewEvent: {:?}", u) }
