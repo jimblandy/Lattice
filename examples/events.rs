@@ -4,25 +4,34 @@ use Lattice::window::{Window};
 use Lattice::view::{View, Text};
 use std::rc::Rc;
 use std::cell::{RefCell,Cell};
+use std::sync::Mutex;
+
+#[macro_use]
+extern crate lazy_static;
+
+lazy_static! {
+    static ref text_clicked: Mutex<Cell<bool>> = Mutex::new(Cell::new(false));
+    static ref left_hovered: Mutex<Cell<bool>> = Mutex::new(Cell::new(false));
+}
 
 fn main() {
     let mut w = Window::new("Premadeath").set_fullscreen(true);
     with_assets!(w);
 
-    let mut text_clicked = false;
-    let mut left_hovered = false;
-
-    w.start(move |events| {
+    w.start(|events| {
        let mut v = View::new();
 
        v.append(Text::new("assets/Macondo-Regular.ttf", "hover text")
-               .always(move |e, i| {
-                  println!("always {}", left_hovered);
-                  if left_hovered { i.shadow([-3, -3, 3, 3], [0.4, 0.4, 0.4, 1.0]); }
+               .always(|e, i| {
+                  let lh = left_hovered.lock().unwrap();
+                  if lh.get() { i.shadow([-3, -3, 3, 3], [0.8, 0.8, 0.8, 1.0]); }
                   else { i.shadow([0, 0, 0, 0], [0.0, 0.0, 0.0, 0.0]); }
-                  //left_hovered.set(false);
+                  lh.set(false);
                })
-               .hovered(move |e, i| { left_hovered = true; })
+               .hovered(move |e, i| {
+                  let lh = left_hovered.lock().unwrap();
+                  lh.set(true);
+               })
                .color([0.4, 0.4, 1.0, 1.0])
                .scale(2.0, "em")
                .width(25.0, "%")

@@ -121,12 +121,35 @@ impl Window {
          let width_pct = (width_px as f64) / 100.0;
          let height_pct = (height_px as f64) / 100.0;
 
+         let cursor = event_pump.mouse_state();
+         let cursor_x = cursor.x() as usize;
+         let cursor_y = cursor.y() as usize;
+
          let mut v = cl(&mut events);
          canvas.set_draw_color(Color::RGB(0, 0, 0));
          canvas.clear();
 
          for ci in 0..v.components.len() {
             let ref mut c = v.components[ci];
+
+            let mut evs = match *c {
+               Component::Text(ref mut m) => { let mut v = Vec::new(); v.extend(m.events.iter().cloned()); v }
+               Component::Image(ref mut m) => { let mut v = Vec::new(); v.extend(m.events.iter().cloned()); v }
+               Component::Rectangle(ref mut m) => { let mut v = Vec::new(); v.extend(m.events.iter().cloned()); v }
+               _ => { panic!("unexpected Component") }
+            };
+            for mut ev in evs {
+               match ev {
+                  (::view::Event::Always, mut f) => {
+                     let mut callback = f.borrow_mut();
+                     (&mut *callback)(&mut events, c);
+                  }
+                  (::view::Event::Hovered, mut f) => {}
+                  (::view::Event::Clicked, mut f) => {}
+                  (ref u,_) => { panic!("Unexpected ViewEvent: {:?}", u) }
+               }
+            }
+
             let bbox: (usize,usize,usize,usize) = match *c {
                Component::Image(ref image) => {
                   let mut x = 0;
@@ -360,13 +383,13 @@ impl Window {
                         base_glyph.set_alpha_mod((sc[3]*255.0) as u8);
                         for sx in (shadow_box[0]-1) .. shadow_box[2] {
                            let mut x = ((x as i64) + sx); if x<0 { continue; }; let x = x as i32;
-                           if (x as usize) + (glyph_width as usize) > max_x { max_x = (x as usize) + (glyph_width as usize) }
                         for sy in (shadow_box[1]-1) .. shadow_box[3] {
                            let mut y = ((y as i64) + sy); if y<0 { continue; }; let y = y as i32;
-                           if (y as usize) + (line_height as usize) > max_y { max_y = (y as usize) + (line_height as usize) }
                            canvas.copy(base_glyph, None, Some(Rect::new(x, y, (glyph_width as u32), (line_height as u32)))).unwrap();
                         }}
                      }
+                     if ((x as usize) + (glyph_width as usize)) > max_x { max_x = (x as usize) + (glyph_width as usize) }
+                     if ((y as usize) + (line_height as usize)) > max_y { max_y = (y as usize) + (line_height as usize) }
                      base_glyph.set_color_mod((color[0]*255.0) as u8, (color[1]*255.0) as u8, (color[2]*255.0) as u8);
                      base_glyph.set_alpha_mod((color[3]*255.0) as u8);
                      canvas.copy(base_glyph, None, Some(Rect::new((x as i32), (y as i32), (glyph_width as u32), (line_height as u32)))).unwrap();
@@ -384,13 +407,13 @@ impl Window {
             };
             for mut ev in evs {
                match ev {
-                  (::view::Event::Always, mut f) => {
-                     let mut callback = f.borrow_mut();
-                     (&mut *callback)(&mut events, c);
-                  }
+                  (::view::Event::Always, mut f) => {}
                   (::view::Event::Hovered, mut f) => {
-                     let mut callback = f.borrow_mut();
-                     (&mut *callback)(&mut events, c);
+                     if bbox.0 <= cursor_x && cursor_x < bbox.2 &&
+                        bbox.1 <= cursor_y && cursor_y < bbox.3 {
+                        let mut callback = f.borrow_mut();
+                        (&mut *callback)(&mut events, c);
+                     }
                   }
                   (::view::Event::Clicked, mut f) => {
                      //println!("bind event clicked.");
