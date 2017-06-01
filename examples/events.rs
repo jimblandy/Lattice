@@ -3,12 +3,7 @@ extern crate Lattice;
 use Lattice::window::{Window};
 use Lattice::view::{View, Text};
 use std::rc::Rc;
-use std::cell::RefCell;
-
-struct GlobalState {
-   text_clicked: bool,
-   left_hovered: bool
-}
+use std::cell::{RefCell,Cell};
 
 fn main() {
     let mut w = Window::new("Premadeath").set_fullscreen(true);
@@ -19,15 +14,15 @@ fn main() {
 
     w.start(move |events| {
        let mut v = View::new();
-       left_hovered = false;
 
        v.append(Text::new("assets/Macondo-Regular.ttf", "hover text")
                .always(move |e, i| {
+                  println!("always {}", left_hovered);
                   if left_hovered { i.shadow([-3, -3, 3, 3], [0.4, 0.4, 0.4, 1.0]); }
                   else { i.shadow([0, 0, 0, 0], [0.0, 0.0, 0.0, 0.0]); }
-                  left_hovered = false;
+                  //left_hovered.set(false);
                })
-               //.hovered(move |&: e, i| { state.borrow_mut().left_hovered = true; })
+               .hovered(move |e, i| { left_hovered = true; })
                .color([0.4, 0.4, 1.0, 1.0])
                .scale(2.0, "em")
                .width(25.0, "%")

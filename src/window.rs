@@ -1,5 +1,5 @@
 use ::events::{Events};
-use ::view::{View, Component, Modifier};
+use ::view::{View, Component, Modifier, Image};
 
 extern crate rusttype;
 use self::rusttype::{FontCollection, Scale, point, PositionedGlyph};
@@ -385,13 +385,15 @@ impl Window {
             for mut ev in evs {
                match ev {
                   (::view::Event::Always, mut f) => {
-                     f.borrow_mut()(&mut events, c);
+                     let mut callback = f.borrow_mut();
+                     (&mut *callback)(&mut events, c);
+                  }
+                  (::view::Event::Hovered, mut f) => {
+                     let mut callback = f.borrow_mut();
+                     (&mut *callback)(&mut events, c);
                   }
                   (::view::Event::Clicked, mut f) => {
                      //println!("bind event clicked.");
-                  }
-                  (::view::Event::Hovered, mut f) => {
-                     //println!("bind event hovered.");
                   }
                   (ref u,_) => { panic!("Unexpected ViewEvent: {:?}", u) }
                }
