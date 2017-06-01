@@ -4,7 +4,7 @@ use Lattice::window::{Window};
 use Lattice::view::{View, Image};
 
 fn main() {
-    let mut w = Window::new("Premadeath")
+    let mut w = Window::new("Premadeath", ())
               .set_fullscreen(true);
     with_assets!(w);
     w.start(|events| {

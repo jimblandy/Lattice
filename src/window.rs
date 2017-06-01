@@ -22,22 +22,25 @@ use std::path::Path;
 use std::fs::File;
 use std::io::{Write, Read, Seek, SeekFrom};
 use std::rc::*;
+use std::cell::*;
 
-pub struct Window {
+pub struct Window<T> {
    title: String,
    fullscreen: bool,
-   assets: Vec<(String,Vec<u8>)>
+   assets: Vec<(String,Vec<u8>)>,
+   state: T
 }
 
-impl Window {
-   pub fn new(title: &str) -> Window {
+impl<T> Window<T> {
+   pub fn new(title: &str, t: T) -> Window<T> {
       Window {
          title: title.to_owned(),
          fullscreen: false,
-         assets: Vec::new()
+         assets: Vec::new(),
+         state: t
       }
    }
-   pub fn set_fullscreen(mut self, fullscreen: bool) -> Window {
+   pub fn set_fullscreen(mut self, fullscreen: bool) -> Window<T> {
       self.fullscreen = fullscreen; self
    }
    pub fn load_assets(&mut self, mut assets: Vec<(&str,Vec<u8>)>) {
@@ -375,30 +378,26 @@ impl Window {
                }
                _ => { (0,0,0,0) }
             };
-            let evs = match *c {
-               Component::Text(ref mut m) => { m.events.iter().cloned() }
-               Component::Image(ref mut m) => { m.events.iter().cloned() }
-               Component::Rectangle(ref mut m) => { m.events.iter().cloned() }
+            let mut evs = match *c {
+               Component::Text(ref mut m) => { let mut v = Vec::new(); v.extend(m.events.iter().cloned()); v }
+               Component::Image(ref mut m) => { let mut v = Vec::new(); v.extend(m.events.iter().cloned()); v }
+               Component::Rectangle(ref mut m) => { let mut v = Vec::new(); v.extend(m.events.iter().cloned()); v }
                _ => { panic!("unexpected Component") }
             };
-            /*
-            for ev in evs {
+            for mut ev in evs {
                match ev {
-                  (ref e @ ::view::Event::Always, ref f) => {
-                     let mut f = f.borrow_mut();
-                     f(&mut events, c);
-                     //println!("bind event always.");
+                  (::view::Event::Always, f) => {
+                     (*(f.borrow()))(&mut events, c);
                   }
-                  (ref e @ ::view::Event::Clicked, ref f) => {
+                  (::view::Event::Clicked, f) => {
                      //println!("bind event clicked.");
                   }
-                  (ref e @ ::view::Event::Hovered, ref f) => {
+                  (::view::Event::Hovered, f) => {
                      //println!("bind event hovered.");
                   }
                   (ref u,_) => { panic!("Unexpected ViewEvent: {:?}", u) }
                }
             }
-            */
          }
          canvas.present();
       }

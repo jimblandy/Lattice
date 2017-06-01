@@ -74,7 +74,7 @@ impl Shadow {
 pub struct Image {
    pub name: String,
    pub modifiers: Vec<Modifier>,
-   pub events: Vec<(Event, Rc<RefCell<FnMut(&mut Events, &mut MutableComponent)>>)>,
+   pub events: Vec<(Event, Rc<RefCell<Fn(&mut Events, &mut MutableComponent)>>)>,
 }
 impl Image {
    pub fn new(name: &str) -> Component {
@@ -87,7 +87,7 @@ pub struct Text {
    pub font: String,
    pub align: String,
    pub modifiers: Vec<Modifier>,
-   pub events: Vec<(Event, Rc<RefCell<FnMut(&mut Events, &mut MutableComponent)>>)>,
+   pub events: Vec<(Event, Rc<RefCell<Fn(&mut Events, &mut MutableComponent)>>)>,
 }
 impl Text {
    pub fn new(font: &str, cs: &str) -> Component {
@@ -102,7 +102,7 @@ pub struct Rectangle {
    pub width: f64,
    pub wunit: String,
    pub modifiers: Vec<Modifier>,
-   pub events: Vec<(Event, Rc<RefCell<FnMut(&mut Events, &mut MutableComponent)>>)>,
+   pub events: Vec<(Event, Rc<RefCell<Fn(&mut Events, &mut MutableComponent)>>)>,
 }
 impl Rectangle {
    pub fn new(w: f64, wunit: &str, h: f64, hunit: &str) -> Component {
@@ -227,7 +227,7 @@ impl Component {
       }; self
    }
    pub fn clicked<F>(mut self, f: F) -> Component 
-          where F: 'static + FnMut(&mut Events, &mut MutableComponent) {
+          where F: 'static + Fn(&mut Events, &mut MutableComponent) {
       match self {
          Component::Text(ref mut m) => { push_event!(m.events, Clicked, f); }
          Component::Image(ref mut m) => { push_event!(m.events, Clicked, f); }
@@ -236,7 +236,7 @@ impl Component {
       }; self
    }
    pub fn hovered<F>(mut self, f: F) -> Component 
-          where F: 'static + FnMut(&mut Events, &mut MutableComponent) {
+          where F: 'static + Fn(&mut Events, &mut MutableComponent) {
       match self {
          Component::Text(ref mut m) => { push_event!(m.events, Hovered, f); }
          Component::Image(ref mut m) => { push_event!(m.events, Hovered, f); }
@@ -245,7 +245,7 @@ impl Component {
       }; self
    }
    pub fn always<F>(mut self, f: F) -> Component 
-          where F: 'static + FnMut(&mut Events, &mut MutableComponent) {
+          where F: 'static + Fn(&mut Events, &mut MutableComponent) {
       match self {
          Component::Text(ref mut m) => { push_event!(m.events, Always, f); }
          Component::Image(ref mut m) => { push_event!(m.events, Always, f); }
