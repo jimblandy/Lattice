@@ -1,5 +1,5 @@
 use ::events::{Events};
-use ::view::{View, Component, Modifier};
+use ::view::{View, Component, Modifier, Image};
 
 extern crate rusttype;
 use self::rusttype::{FontCollection, Scale, point, PositionedGlyph};
@@ -21,11 +21,13 @@ use std::collections::{HashMap};
 use std::path::Path;
 use std::fs::File;
 use std::io::{Write, Read, Seek, SeekFrom};
+use std::rc::*;
+use std::cell::*;
 
 pub struct Window {
    title: String,
    fullscreen: bool,
-   assets: Vec<(String,Vec<u8>)>
+   assets: Vec<(String,Vec<u8>)>,
 }
 
 impl Window {
@@ -33,7 +35,7 @@ impl Window {
       Window {
          title: title.to_owned(),
          fullscreen: false,
-         assets: Vec::new()
+         assets: Vec::new(),
       }
    }
    pub fn set_fullscreen(mut self, fullscreen: bool) -> Window {
@@ -44,8 +46,8 @@ impl Window {
          self.assets.push((path.to_string(), contents));
       }
    }
-   pub fn start<F>(&self, cl: F) 
-       where F: Fn(&mut Events) -> View {
+   pub fn start<F>(&self, mut cl: F) 
+       where F: FnMut(&mut Events) -> View {
 
       let sdl_context = sdl2::init().unwrap();
       let video_subsystem = sdl_context.video().unwrap();
@@ -119,13 +121,13 @@ impl Window {
          let width_pct = (width_px as f64) / 100.0;
          let height_pct = (height_px as f64) / 100.0;
 
-         let v = cl(&mut events);
+         let mut v = cl(&mut events);
          canvas.set_draw_color(Color::RGB(0, 0, 0));
          canvas.clear();
 
          for ci in 0..v.components.len() {
-            let ref c = v.components[ci];
-            match *c {
+            let ref mut c = v.components[ci];
+            let bbox: (usize,usize,usize,usize) = match *c {
                Component::Image(ref image) => {
                   let mut x = 0;
                   let mut y = 0;
@@ -160,8 +162,12 @@ impl Window {
                   if w<0 { w=(tx as i64) };
                   if h<0 { h=(ty as i64) };
                   canvas.copy(texture, None, Some(Rect::new(x, y, (w as u32), (h as u32)))).unwrap();
+
+                  let x = x as usize;
+                  let y = y as usize;
+                  (x, y, x+(w as usize), y+(h as usize))
                }
-               Component::Text(ref text) => {
+               Component::Text(ref mut text) => {
                   let font = fonts.get(text.font.as_str()).expect(format!("Could not find font: {}", text.font).as_str());
 
                   let mut pixel_height = em as usize;
@@ -341,6 +347,8 @@ impl Window {
                      result
                   };
 
+                  let mut max_x = 0;
+                  let mut max_y = 0;
                   for pi in 0..positioned.len() {
                      let (caret, height, c, line_height, glyph_width) = positioned[pi];
                      let ref mut base_glyph = glyphs.get_mut(&(c,line_height)).expect("glyph").1;
@@ -352,8 +360,10 @@ impl Window {
                         base_glyph.set_alpha_mod((sc[3]*255.0) as u8);
                         for sx in (shadow_box[0]-1) .. shadow_box[2] {
                            let mut x = ((x as i64) + sx); if x<0 { continue; }; let x = x as i32;
+                           if (x as usize) + (glyph_width as usize) > max_x { max_x = (x as usize) + (glyph_width as usize) }
                         for sy in (shadow_box[1]-1) .. shadow_box[3] {
                            let mut y = ((y as i64) + sy); if y<0 { continue; }; let y = y as i32;
+                           if (y as usize) + (line_height as usize) > max_y { max_y = (y as usize) + (line_height as usize) }
                            canvas.copy(base_glyph, None, Some(Rect::new(x, y, (glyph_width as u32), (line_height as u32)))).unwrap();
                         }}
                      }
@@ -361,8 +371,32 @@ impl Window {
                      base_glyph.set_alpha_mod((color[3]*255.0) as u8);
                      canvas.copy(base_glyph, None, Some(Rect::new((x as i32), (y as i32), (glyph_width as u32), (line_height as u32)))).unwrap();
                   }
+
+                  (pos_x, pos_y, max_x, max_y)
                }
-               _ => {}
+               _ => { (0,0,0,0) }
+            };
+            let mut evs = match *c {
+               Component::Text(ref mut m) => { let mut v = Vec::new(); v.extend(m.events.iter().cloned()); v }
+               Component::Image(ref mut m) => { let mut v = Vec::new(); v.extend(m.events.iter().cloned()); v }
+               Component::Rectangle(ref mut m) => { let mut v = Vec::new(); v.extend(m.events.iter().cloned()); v }
+               _ => { panic!("unexpected Component") }
+            };
+            for mut ev in evs {
+               match ev {
+                  (::view::Event::Always, mut f) => {
+                     let mut callback = f.borrow_mut();
+                     (&mut *callback)(&mut events, c);
+                  }
+                  (::view::Event::Hovered, mut f) => {
+                     let mut callback = f.borrow_mut();
+                     (&mut *callback)(&mut events, c);
+                  }
+                  (::view::Event::Clicked, mut f) => {
+                     //println!("bind event clicked.");
+                  }
+                  (ref u,_) => { panic!("Unexpected ViewEvent: {:?}", u) }
+               }
             }
          }
          canvas.present();
