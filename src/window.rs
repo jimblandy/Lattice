@@ -249,7 +249,7 @@ impl Window {
                      }
                   }
 
-                  let scale = Scale { x: (pixel_height as f32)*2.0, y: (pixel_height as f32) };
+                  let scale = Scale { x: (pixel_height) as f32, y: (pixel_height as f32) };
 
                   let v_metrics = font.v_metrics(scale);
                   let offset = point(0.0, v_metrics.ascent);
