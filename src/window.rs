@@ -148,7 +148,7 @@ impl Window {
                match ev {
                   (::view::Event::Always, mut f) => {
                      let mut callback = f.borrow_mut();
-                     (&mut *callback)(&mut events, c);
+                     (&mut *callback)(&mut events);
                   }
                   (::view::Event::Hovered, mut f) => {}
                   (::view::Event::Clicked, mut f) => {}
@@ -417,14 +417,14 @@ impl Window {
                      if bbox.0 <= cursor_x && cursor_x < bbox.2 &&
                         bbox.1 <= cursor_y && cursor_y < bbox.3 {
                         let mut callback = f.borrow_mut();
-                        (&mut *callback)(&mut events, c);
+                        (&mut *callback)(&mut events);
                      }
                   }
                   (::view::Event::Clicked, mut f) => {
                      if click && bbox.0 <= cursor_x && cursor_x < bbox.2 &&
                         bbox.1 <= cursor_y && cursor_y < bbox.3 {
                         let mut callback = f.borrow_mut();
-                        (&mut *callback)(&mut events, c);
+                        (&mut *callback)(&mut events);
                      }
                   }
                   (ref u,_) => { panic!("Unexpected ViewEvent: {:?}", u) }
