@@ -1,6 +1,7 @@
 use ::events::Events;
 use std::rc::Rc;
 use std::cell::RefCell;
+use std::slice::Iter;
 
 pub struct Width {
    pub scalar: f64,
@@ -158,12 +159,15 @@ pub enum Component {
    Text(Text),
    Rectangle(Rectangle),
 }
-pub enum BorrowComponent<'a> {
-   Image(&'a mut Image),
-   Text(&'a mut Text),
-   Rectangle(&'a mut Rectangle),
-}
 impl Component {
+   pub fn modifiers(&mut self) -> Iter<Modifier> {
+      match *self {
+         Component::Text(ref m) => { m.modifiers.iter() }
+         Component::Image(ref m) => { m.modifiers.iter() }
+         Component::Rectangle(ref m) => { m.modifiers.iter() }
+         _ => { panic!("No modifiers on component") }
+      }
+   }
    pub fn width(mut self, scalar: f64, unit: &str) -> Component {
       match self {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, Width, (scalar, unit,)) }

@@ -122,7 +122,7 @@ impl Window {
             let (rw,rh) = window.size();
             let (w,h) = window.drawable_size();
             let dpi = w/rw;
-            (w, h, dpi)
+            (w as usize, h as usize, dpi as usize)
          };
          let width_pct = (width_px as f64) / 100.0;
          let height_pct = (height_px as f64) / 100.0;
@@ -156,98 +156,97 @@ impl Window {
                }
             }
 
-            let bbox: (usize,usize,usize,usize) = match *c {
-               Component::Image(ref image) => {
-                  let mut x = 0;
-                  let mut y = 0;
-                  let mut w = -1i64;
-                  let mut h = -1i64;
+            let bbox: (usize,usize,usize,usize) = {
 
-                  for mi in 0..image.modifiers.len() {
-                     let ref m = image.modifiers[mi];
-                     match *m {
-                        Modifier::Width(ref wd) => { 
-                           match wd.unit.as_str() {
-                              "%" => { w = (wd.scalar * width_pct) as i64; }
-                              "em" => { w = (wd.scalar * em) as i64; }
-                              "px" => { w = (wd.scalar) as i64; }
-                              u => { panic!("Invalid unit: {}", u); }
-                           }
-                        }
-                        Modifier::Height(ref hd) => { 
-                           match hd.unit.as_str() {
-                              "%" => { h = (hd.scalar * height_pct) as i64; }
-                              "em" => { h = (hd.scalar * em) as i64; }
-                              "px" => { h = (hd.scalar) as i64; }
-                              u => { panic!("Invalid unit: {}", u); }
-                           }
-                        }
-                        _ => {}
+               let mut pixel_height = em as usize;
+               let mut width = width_px as usize;
+               let mut height = height_px as usize;
+               let mut pos_x = 0 as usize;
+               let mut pos_y = 0 as usize;
+               let mut color = [1.0, 1.0, 1.0, 1.0];
+               let mut shadow = ([0,0,0,0],[0.0,0.0,0.0,0.0]);
+
+               for m in c.modifiers() {
+                  match *m {
+                     Modifier::Shadow(ref s) => {
+                        shadow = (s.boxed.clone(), s.rgba.clone());
                      }
+                     Modifier::Color(ref s) => {
+                        color = s.rgba.clone();
+                     }
+                     Modifier::Scale(ref s) => {
+                        match s.unit.as_str() {
+                          "em" => { pixel_height = (em * s.scalar).ceil() as usize; }
+                          "%" => { pixel_height = (height_pct * s.scalar).ceil() as usize; }
+                          "px" => { pixel_height = (s.scalar) as usize; }
+                           u => { panic!("Invalid unit: {}", u); }
+                        }
+                     }
+                     Modifier::Width(ref w) => {
+                        match w.unit.as_str() {
+                          "em" => { width = (em * w.scalar).ceil() as usize; }
+                          "%" => { width = (width_pct * w.scalar).ceil() as usize; }
+                          "px" => { width = (w.scalar) as usize; }
+                           u => { panic!("Invalid unit: {}", u); }
+                        }
+                     }
+                     Modifier::Height(ref w) => {
+                        match w.unit.as_str() {
+                          "em" => { height = (em * w.scalar).ceil() as usize; }
+                          "%" => { height = (height_pct * w.scalar).ceil() as usize; }
+                          "px" => { height = (w.scalar) as usize; }
+                           u => { panic!("Invalid unit: {}", u); }
+                        }
+                     }
+                     Modifier::TranslateX(ref t) => {
+                        match t.unit.as_str() {
+                          "em" => { pos_x = (em * t.scalar).ceil() as usize; }
+                          "%" => { pos_x = (width_pct * t.scalar).ceil() as usize; }
+                          "=" => { }
+                          "px" => { pos_x = (t.scalar) as usize; }
+                          u => { panic!("Invalid unit: {}", u); }
+                        }
+                     }
+                     Modifier::TranslateY(ref t) => {
+                        match t.unit.as_str() {
+                          "em" => { pos_y = (em * t.scalar).ceil() as usize; }
+                          "%" => { pos_y = (height_pct * t.scalar).ceil() as usize; }
+                          "=" => { }
+                          "px" => { pos_y = (t.scalar) as usize; }
+                          u => { panic!("Invalid unit: {}", u); }
+                        }
+                     }
+                     _ => {}
                   }
+               }
+               for m in c.modifiers() {
+                  match *m {
+                     Modifier::TranslateX(ref t) => {
+                        match t.unit.as_str() {
+                          "=" => { pos_x = (((width_px - width) as f64)*0.5).ceil() as usize; }
+                          _ => { }
+                        }
+                     }
+                     Modifier::TranslateY(ref t) => {
+                        match t.unit.as_str() {
+                          "=" => { pos_y = (((height_px - height) as f64)*0.5).ceil() as usize; }
+                          _ => { }
+                        }
+                     }
+                     _ => {}
+                  }
+               }
 
+            match *c {
+               Component::Image(ref image) => {
                   let (tx, ty, ref texture) = *textures.get(image.name.as_str())
                                               .expect(format!("no texture named: {}", image.name).as_str());
-                  if w<0 { w=(tx as i64) };
-                  if h<0 { h=(ty as i64) };
-                  canvas.copy(texture, None, Some(Rect::new(x, y, (w as u32), (h as u32)))).unwrap();
+                  canvas.copy(texture, None, Some(Rect::new(pos_x as i32, pos_y as i32, width as u32, height as u32))).unwrap();
 
-                  let x = x as usize;
-                  let y = y as usize;
-                  (x, y, x+(w as usize), y+(h as usize))
+                  (pos_x, pos_y, pos_x+width, pos_y+height)
                }
                Component::Text(ref mut text) => {
                   let font = fonts.get(text.font.as_str()).expect(format!("Could not find font: {}", text.font).as_str());
-
-                  let mut pixel_height = em as usize;
-                  let mut width = 9999999 as usize;
-                  let mut pos_x = 0 as usize;
-                  let mut pos_y = 0 as usize;
-                  let mut color = [1.0, 1.0, 1.0, 1.0];
-                  let mut shadow = ([0,0,0,0],[0.0,0.0,0.0,0.0]);
-                  for mi in 0..text.modifiers.len() {
-                     match text.modifiers[mi] {
-                        Modifier::Shadow(ref s) => {
-                           shadow = (s.boxed.clone(), s.rgba.clone());
-                        }
-                        Modifier::Color(ref s) => {
-                           color = s.rgba.clone();
-                        }
-                        Modifier::Scale(ref s) => {
-                           match s.unit.as_str() {
-                             "em" => { pixel_height = (em * s.scalar).ceil() as usize; }
-                             "%" => { pixel_height = (height_pct * s.scalar).ceil() as usize; }
-                             "px" => { pixel_height = (s.scalar) as usize; }
-                              u => { panic!("Invalid unit: {}", u); }
-                           }
-                        }
-                        Modifier::Width(ref w) => {
-                           match w.unit.as_str() {
-                             "em" => { width = (em * w.scalar).ceil() as usize; }
-                             "%" => { width = (height_pct * w.scalar).ceil() as usize; }
-                             "px" => { width = (w.scalar) as usize; }
-                              u => { panic!("Invalid unit: {}", u); }
-                           }
-                        }
-                        Modifier::TranslateX(ref t) => {
-                           match t.unit.as_str() {
-                             "em" => { pos_x = (em * t.scalar).ceil() as usize; }
-                             "%" => { pos_x = (width_pct * t.scalar).ceil() as usize; }
-                             "px" => { pos_x = (t.scalar) as usize; }
-                              u => { panic!("Invalid unit: {}", u); }
-                           }
-                        }
-                        Modifier::TranslateY(ref t) => {
-                           match t.unit.as_str() {
-                             "em" => { pos_y = (em * t.scalar).ceil() as usize; }
-                             "%" => { pos_y = (height_pct * t.scalar).ceil() as usize; }
-                             "px" => { pos_y = (t.scalar) as usize; }
-                              u => { panic!("Invalid unit: {}", u); }
-                           }
-                        }
-                        _ => {}
-                     }
-                  }
 
                   let scale = Scale { x: (pixel_height) as f32, y: (pixel_height as f32) };
 
@@ -404,7 +403,7 @@ impl Window {
                   (pos_x, pos_y, max_x, max_y)
                }
                _ => { (0,0,0,0) }
-            };
+            }};
             let mut evs = match *c {
                Component::Text(ref mut m) => { let mut v = Vec::new(); v.extend(m.events.iter().cloned()); v }
                Component::Image(ref mut m) => { let mut v = Vec::new(); v.extend(m.events.iter().cloned()); v }
