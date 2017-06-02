@@ -37,17 +37,23 @@ fn main() {
                .width(25.0, "%")
                .translate_x(150.0, "px")
                .translate_y(150.0, "px"));
-       /*
+
        v.append(Text::new("assets/Macondo-Regular.ttf", "click text")
-               //.clicked(move |e, i| { text_clicked = true; })
-               //.always(move |e, i| { if text_clicked { i.shadow([-3, -3, 3, 3], [0.4, 0.4, 0.4, 1.0]); }  })
+               .always(move |e, i| {
+                  let tc = text_clicked.lock().unwrap();
+                  if tc.get() { i.shadow([-3, -3, 3, 3], [0.8, 0.8, 0.8, 1.0]); }  
+               })
+               .clicked(move |e, i| {
+                  let tc = text_clicked.lock().unwrap();
+                  tc.set(true);
+               })
                .color([1.0, 0.4, 0.4, 1.0])
                .scale(3.0, "em")
                .width(40.0, "%")
                .align("right")
                .translate_x(50.0, "%")
                .translate_y(30.0, "%"));
-       */
+
        v
     });
 }

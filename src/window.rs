@@ -9,6 +9,7 @@ extern crate unicode_normalization;
 extern crate sdl2;
 use self::sdl2::pixels::Color;
 use self::sdl2::event::Event;
+use self::sdl2::mouse::MouseButton;
 use self::sdl2::keyboard::Keycode;
 use self::sdl2::pixels::PixelFormatEnum;
 use self::sdl2::rect::Rect;
@@ -106,10 +107,12 @@ impl Window {
       let mut events = Events::new();
 
       'running: loop {
+         let mut click = false;
          for event in event_pump.poll_iter() {
             match event {
                 Event::Quit { .. } |
                 Event::KeyDown { keycode: Some(Keycode::Escape), .. } => break 'running,
+                Event::MouseButtonDown { mouse_btn: MouseButton::Left, .. } => { click = true; }
                 _ => {}
             }
          }
@@ -419,7 +422,11 @@ impl Window {
                      }
                   }
                   (::view::Event::Clicked, mut f) => {
-                     //println!("bind event clicked.");
+                     if click && bbox.0 <= cursor_x && cursor_x < bbox.2 &&
+                        bbox.1 <= cursor_y && cursor_y < bbox.3 {
+                        let mut callback = f.borrow_mut();
+                        (&mut *callback)(&mut events, c);
+                     }
                   }
                   (ref u,_) => { panic!("Unexpected ViewEvent: {:?}", u) }
                }
