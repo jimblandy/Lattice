@@ -114,16 +114,19 @@ impl Window {
             }
          }
 
-         let (width_px, height_px) = {
+         let (width_px, height_px, dpi) = {
             let mut window = canvas.window_mut();
-            window.drawable_size()
+            let (rw,rh) = window.size();
+            let (w,h) = window.drawable_size();
+            let dpi = w/rw;
+            (w, h, dpi)
          };
          let width_pct = (width_px as f64) / 100.0;
          let height_pct = (height_px as f64) / 100.0;
 
          let cursor = event_pump.mouse_state();
-         let cursor_x = cursor.x() as usize;
-         let cursor_y = cursor.y() as usize;
+         let cursor_x = (cursor.x() as usize) * (dpi as usize);
+         let cursor_y = (cursor.y() as usize) * (dpi as usize);
 
          let mut v = cl(&mut events);
          canvas.set_draw_color(Color::RGB(0, 0, 0));
