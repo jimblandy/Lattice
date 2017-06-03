@@ -165,6 +165,8 @@ impl Window {
                let mut pos_y = 0 as usize;
                let mut color = [1.0, 1.0, 1.0, 1.0];
                let mut shadow = ([0,0,0,0],[0.0,0.0,0.0,0.0]);
+               let mut border_width = 0;
+               let mut border_color = [0.0, 0.0, 0.0, 0.0];
 
                for m in c.modifiers() {
                   match *m {
@@ -173,6 +175,18 @@ impl Window {
                      }
                      Modifier::Color(ref s) => {
                         color = s.rgba.clone();
+                     }
+                     Modifier::Border(ref s) => {
+                        border_width = match s.unit.as_str() {
+                          "em" => { (em * s.scalar).ceil() as usize }
+                          "w%" => { (width_pct * s.scalar).ceil() as usize }
+                          "h%" => { (height_pct * s.scalar).ceil() as usize }
+                          ">%" => { let pct = if height_pct>width_pct { height_pct } else { width_pct }; (pct * s.scalar).ceil() as usize }
+                          "<%" => { let pct = if height_pct<width_pct { height_pct } else { width_pct }; (pct * s.scalar).ceil() as usize }
+                          "px" => { (s.scalar) as usize }
+                           u => { panic!("Invalid unit: {}", u) }
+                        };
+                        border_color = s.rgba.clone();
                      }
                      Modifier::Scale(ref s) => {
                         match s.unit.as_str() {
@@ -237,12 +251,24 @@ impl Window {
                   }
                }
 
+               if border_width > 0 {
+                  let clr = Color::RGBA((border_color[0]*255.0) as u8,
+                                        (border_color[1]*255.0) as u8,
+                                        (border_color[2]*255.0) as u8,
+                                        (border_color[3]*255.0) as u8);
+
+                  canvas.set_draw_color(clr);
+                  canvas.fill_rect(Rect::new((pos_x-border_width) as i32, (pos_y-border_width) as i32,
+                                             (width+2*border_width) as u32, (height+2*border_width) as u32));
+               }
+
             match *c {
                Component::Rectangle(ref rectangle) => {
                   let clr = Color::RGBA((color[0]*255.0) as u8,
                                         (color[1]*255.0) as u8,
                                         (color[2]*255.0) as u8,
                                         (color[3]*255.0) as u8);
+
 
                   canvas.set_draw_color(clr);
                   canvas.fill_rect(Rect::new(pos_x as i32, pos_y as i32, width as u32, height as u32));
