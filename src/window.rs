@@ -163,6 +163,7 @@ impl Window {
                let mut height = height_px as usize;
                let mut pos_x = 0 as usize;
                let mut pos_y = 0 as usize;
+               let mut cog: (f64,f64) = (0.0, 0.0);
                let mut color = [1.0, 1.0, 1.0, 1.0];
                let mut shadow = ([0,0,0,0],[0.0,0.0,0.0,0.0]);
                let mut border_width = 0;
@@ -224,6 +225,9 @@ impl Window {
                            u => { panic!("Invalid unit: {}", u); }
                         }
                      }
+                     Modifier::CenterOfGravity(ref s) => {
+                        cog = (s.horizontal, s.vertical);
+                     }
                      Modifier::TranslateX(ref s) => {
                         match s.unit.as_str() {
                           "em" => { pos_x = (em * s.scalar).ceil() as usize; }
@@ -281,6 +285,9 @@ impl Window {
                   canvas.fill_rect(Rect::new((pos_x-border_width) as i32, (pos_y-border_width) as i32,
                                              (width+2*border_width) as u32, (height+2*border_width) as u32));
                }
+
+            pos_x -= ((cog.0 * (width as f64)).ceil() as usize);
+            pos_y -= ((cog.1 * (height as f64)).ceil() as usize);
 
             match *c {
                Component::Rectangle(ref rectangle) => {
