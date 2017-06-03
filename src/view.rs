@@ -62,6 +62,17 @@ impl Color {
    }
 }
 
+pub struct Border {
+   pub rgba: [f64; 4],
+   pub scalar: f64,
+   pub unit: String,
+}
+impl Border {
+   pub fn new(rgba: [f64; 4], scalar: f64, unit: &str) -> Modifier {
+      Modifier::Border(Border { rgba:rgba, scalar:scalar, unit:unit.to_owned() })
+   }
+}
+
 pub struct Shadow {
    pub boxed: [i64; 4],
    pub rgba: [f64; 4],
@@ -219,6 +230,14 @@ impl Component {
          _ => {}
       }; self
    }
+   pub fn border(mut self, clr: [f64; 4], scalar: f64, unit: &str) -> Component {
+      match self {
+         Component::Text(ref mut m) => { push_modifier!(m.modifiers, Border, (clr, scalar, unit,)) }
+         Component::Image(ref mut m) => { push_modifier!(m.modifiers, Border, (clr, scalar, unit,)) }
+         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Border, (clr, scalar, unit,)) }
+         _ => {}
+      }; self
+   }
    pub fn shadow(mut self, d: [i64; 4], c: [f64; 4]) -> Component {
       match self {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, Shadow, (d, c,)) }
@@ -265,6 +284,7 @@ pub enum Event {
 
 pub enum Modifier {
    Color(Color),
+   Border(Border),
    Scale(Scale),
    TranslateX(TranslateX),
    TranslateY(TranslateY),
