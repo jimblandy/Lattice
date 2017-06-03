@@ -327,7 +327,7 @@ impl Window {
                               let (w, ref g) = *c;
                               (w, g)
                            }
-                           _ => { continue; }
+                           _ => { panic!("Glyph not loaded: {}", c); }
                         };
                         if caret + glyph_width > width {
                            caret = 0; height += line_height;
@@ -338,15 +338,16 @@ impl Window {
                      if text.align.as_str() == "justify" {
                         let just_width = width;
                         let mut prev_line = 0;
-                        for ri in 0..result.len() {
-                           let (caret, height, c, line_height, glyph_width) = result[ri];
-                           if caret == 0 {
+                        for ri in 0..(result.len()+1) {
+                           if ri==result.len() || result[ri].0 == 0 {
                               let mut real_width = 0;
                               let mut char_count = 0;
                               for si in prev_line..ri {
                                  let (caret, height, c, line_height, glyph_width) = result[si];
-                                 real_width += glyph_width;
-                                 char_count += 1;
+                                 if si != (ri-1) || (c != ' ' && c != '\t') {
+                                    real_width += glyph_width;
+                                    char_count += 1;
+                                 }
                               }
                               let just_gap = ((just_width - real_width) as f64) / (char_count as f64);
                               for si in prev_line..ri {
@@ -357,26 +358,43 @@ impl Window {
                               prev_line = ri;
                            }
                         }
+                     } else if text.align.as_str() == "center" {
+                        let just_width = width;
+                        let mut prev_line = 0;
+                        for ri in 0..(result.len()+1) {
+                           if ri==result.len() || result[ri].0 == 0 {
+                              let mut real_width = 0;
+                              for si in prev_line..ri {
+                                 let (caret, height, c, line_height, glyph_width) = result[si];
+                                 if si != (ri-1) || (c != ' ' && c != '\t') {
+                                    real_width += glyph_width;
+                                 }
+                              }
+                              let center_gap = (((just_width - real_width) as f64) / 2.0).ceil() as usize;
+                              for si in prev_line..ri {
+                                 let (mut caret, height, c, line_height, glyph_width) = result[si];
+                                 caret += center_gap;
+                                 result[si] = (caret, height, c, line_height, glyph_width);
+                              }
+                              prev_line = ri;
+                           }
+                        }
                      } else if text.align.as_str() == "right" {
                         let just_width = width;
                         let mut prev_line = 0;
-                        for ri in 0..result.len() {
-                           let (caret, height, c, line_height, glyph_width) = result[ri];
-                           if caret == 0 {
+                        for ri in 0..(result.len()+1) {
+                           if ri==result.len() || result[ri].0 == 0 {
                               let mut real_width = 0;
-                              let mut base_gap = 0;
                               for si in prev_line..ri {
                                  let (caret, height, c, line_height, glyph_width) = result[si];
-                                 real_width += glyph_width;
-                                 if si!=(ri-1) || (c != ' ' && c != '\t') {
-                                 } else {
-                                    base_gap += glyph_width;
+                                 if si != (ri-1) || (c != ' ' && c != '\t') {
+                                    real_width += glyph_width;
                                  }
                               }
-                              let gap = base_gap + just_width - real_width;
+                              let right_gap = ((just_width - real_width) as f64).ceil() as usize;
                               for si in prev_line..ri {
                                  let (mut caret, height, c, line_height, glyph_width) = result[si];
-                                 caret += gap;
+                                 caret += right_gap;
                                  result[si] = (caret, height, c, line_height, glyph_width);
                               }
                               prev_line = ri;
