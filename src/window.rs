@@ -192,41 +192,61 @@ impl Window {
                         match s.unit.as_str() {
                           "em" => { pixel_height = (em * s.scalar).ceil() as usize; }
                           "%" => { pixel_height = (height_pct * s.scalar).ceil() as usize; }
+                          "w%" => { pixel_height = (width_pct * s.scalar).ceil() as usize; }
+                          "h%" => { pixel_height = (height_pct * s.scalar).ceil() as usize; }
+                          ">%" => { let pct = if height_pct>width_pct { height_pct } else { width_pct }; pixel_height = (pct * s.scalar).ceil() as usize; }
+                          "<%" => { let pct = if height_pct<width_pct { height_pct } else { width_pct }; pixel_height = (pct * s.scalar).ceil() as usize; }
                           "px" => { pixel_height = (s.scalar) as usize; }
                            u => { panic!("Invalid unit: {}", u); }
                         }
                      }
-                     Modifier::Width(ref w) => {
-                        match w.unit.as_str() {
-                          "em" => { width = (em * w.scalar).ceil() as usize; }
-                          "%" => { width = (width_pct * w.scalar).ceil() as usize; }
-                          "px" => { width = (w.scalar) as usize; }
+                     Modifier::Width(ref s) => {
+                        match s.unit.as_str() {
+                          "em" => { width = (em * s.scalar).ceil() as usize; }
+                          "%" => { width = (width_pct * s.scalar).ceil() as usize; }
+                          "w%" => { width = (width_pct * s.scalar).ceil() as usize; }
+                          "h%" => { width = (height_pct * s.scalar).ceil() as usize; }
+                          ">%" => { let pct = if height_pct>width_pct { height_pct } else { width_pct }; width = (pct * s.scalar).ceil() as usize; }
+                          "<%" => { let pct = if height_pct<width_pct { height_pct } else { width_pct }; width = (pct * s.scalar).ceil() as usize; }
+                          "px" => { width = (s.scalar) as usize; }
                            u => { panic!("Invalid unit: {}", u); }
                         }
                      }
-                     Modifier::Height(ref w) => {
-                        match w.unit.as_str() {
-                          "em" => { height = (em * w.scalar).ceil() as usize; }
-                          "%" => { height = (height_pct * w.scalar).ceil() as usize; }
-                          "px" => { height = (w.scalar) as usize; }
+                     Modifier::Height(ref s) => {
+                        match s.unit.as_str() {
+                          "em" => { height = (em * s.scalar).ceil() as usize; }
+                          "%" => { height = (height_pct * s.scalar).ceil() as usize; }
+                          "w%" => { height = (width_pct * s.scalar).ceil() as usize; }
+                          "h%" => { height = (height_pct * s.scalar).ceil() as usize; }
+                          ">%" => { let pct = if height_pct>width_pct { height_pct } else { width_pct }; height = (pct * s.scalar).ceil() as usize; }
+                          "<%" => { let pct = if height_pct<width_pct { height_pct } else { width_pct }; height = (pct * s.scalar).ceil() as usize; }
+                          "px" => { height = (s.scalar) as usize; }
                            u => { panic!("Invalid unit: {}", u); }
                         }
                      }
-                     Modifier::TranslateX(ref t) => {
-                        match t.unit.as_str() {
-                          "em" => { pos_x = (em * t.scalar).ceil() as usize; }
-                          "%" => { pos_x = (width_pct * t.scalar).ceil() as usize; }
+                     Modifier::TranslateX(ref s) => {
+                        match s.unit.as_str() {
+                          "em" => { pos_x = (em * s.scalar).ceil() as usize; }
+                          "%" => { pos_x = (width_pct * s.scalar).ceil() as usize; }
+                          "w%" => { pos_x = (width_pct * s.scalar).ceil() as usize; }
+                          "h%" => { pos_x = (height_pct * s.scalar).ceil() as usize; }
+                          ">%" => { let pct = if height_pct>width_pct { height_pct } else { width_pct }; pos_x = (pct * s.scalar).ceil() as usize; }
+                          "<%" => { let pct = if height_pct<width_pct { height_pct } else { width_pct }; pos_x = (pct * s.scalar).ceil() as usize; }
                           "=" => { }
-                          "px" => { pos_x = (t.scalar) as usize; }
+                          "px" => { pos_x = (s.scalar) as usize; }
                           u => { panic!("Invalid unit: {}", u); }
                         }
                      }
-                     Modifier::TranslateY(ref t) => {
-                        match t.unit.as_str() {
-                          "em" => { pos_y = (em * t.scalar).ceil() as usize; }
-                          "%" => { pos_y = (height_pct * t.scalar).ceil() as usize; }
+                     Modifier::TranslateY(ref s) => {
+                        match s.unit.as_str() {
+                          "em" => { pos_y = (em * s.scalar).ceil() as usize; }
+                          "%" => { pos_y = (height_pct * s.scalar).ceil() as usize; }
+                          "w%" => { pos_y = (width_pct * s.scalar).ceil() as usize; }
+                          "h%" => { pos_y = (height_pct * s.scalar).ceil() as usize; }
+                          ">%" => { let pct = if height_pct>width_pct { height_pct } else { width_pct }; pos_y = (pct * s.scalar).ceil() as usize; }
+                          "<%" => { let pct = if height_pct<width_pct { height_pct } else { width_pct }; pos_y = (pct * s.scalar).ceil() as usize; }
                           "=" => { }
-                          "px" => { pos_y = (t.scalar) as usize; }
+                          "px" => { pos_y = (s.scalar) as usize; }
                           u => { panic!("Invalid unit: {}", u); }
                         }
                      }

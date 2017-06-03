@@ -23,6 +23,16 @@ impl Height {
    }
 }
 
+pub struct CenterOfGravity {
+   pub horizontal: f64,
+   pub vertical: f64,
+}
+impl CenterOfGravity {
+   pub fn new(horizontal: f64, vertical: f64) -> Modifier {
+      Modifier::CenterOfGravity(CenterOfGravity { horizontal:horizontal, vertical:vertical })
+   }
+}
+
 pub struct TranslateX {
    pub scalar: f64,
    pub unit: String,
@@ -192,6 +202,14 @@ impl Component {
          _ => {}
       }; self
    }
+   pub fn cog(mut self, x: f64, y: f64) -> Component {
+      match self {
+         Component::Text(ref mut m) => { push_modifier!(m.modifiers, CenterOfGravity, (x, y,)) }
+         Component::Image(ref mut m) => { push_modifier!(m.modifiers, CenterOfGravity, (x, y,)) }
+         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, CenterOfGravity, (x, y,)) }
+         _ => {}
+      }; self
+   }
    pub fn translate_x(mut self, scalar: f64, unit: &str) -> Component {
       match self {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, TranslateX, (scalar, unit,)) }
@@ -286,6 +304,7 @@ pub enum Modifier {
    Color(Color),
    Border(Border),
    Scale(Scale),
+   CenterOfGravity(CenterOfGravity),
    TranslateX(TranslateX),
    TranslateY(TranslateY),
    Width(Width),
