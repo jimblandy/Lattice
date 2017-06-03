@@ -238,6 +238,17 @@ impl Window {
                }
 
             match *c {
+               Component::Rectangle(ref rectangle) => {
+                  let clr = Color::RGBA((color[0]*255.0) as u8,
+                                        (color[1]*255.0) as u8,
+                                        (color[2]*255.0) as u8,
+                                        (color[3]*255.0) as u8);
+
+                  canvas.set_draw_color(clr);
+                  canvas.fill_rect(Rect::new(pos_x as i32, pos_y as i32, width as u32, height as u32));
+
+                  (pos_x, pos_y, pos_x+width, pos_y+height)
+               }
                Component::Image(ref image) => {
                   let (tx, ty, ref texture) = *textures.get(image.name.as_str())
                                               .expect(format!("no texture named: {}", image.name).as_str());

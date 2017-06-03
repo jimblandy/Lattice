@@ -98,17 +98,14 @@ impl Text {
 }
 
 pub struct Rectangle {
-   pub height: f64,
-   pub hunit: String,
-   pub width: f64,
-   pub wunit: String,
    pub modifiers: Vec<Modifier>,
    pub events: Vec<(Event, Rc<RefCell<FnMut(&mut Events)>>)>,
 }
 impl Rectangle {
    pub fn new(w: f64, wunit: &str, h: f64, hunit: &str) -> Component {
-      Component::Rectangle(Rectangle { width:w, wunit:wunit.to_owned(), height:h, hunit:hunit.to_owned(),
-                                       modifiers:Vec::new(), events:Vec::new() })
+      Component::Rectangle(Rectangle { modifiers:Vec::new(), events:Vec::new() })
+      .width(w, wunit)
+      .height(h, hunit)
    }
 }
 
