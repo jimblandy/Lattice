@@ -72,6 +72,15 @@ impl Color {
    }
 }
 
+pub struct State {
+   pub state: String
+}
+impl State {
+   pub fn new(state: &str) -> Modifier {
+      Modifier::State(State { state:state.to_owned() })
+   }
+}
+
 pub struct Border {
    pub rgba: [f64; 4],
    pub scalar: f64,
@@ -185,6 +194,14 @@ impl Component {
          Component::Rectangle(ref m) => { m.modifiers.iter() }
          _ => { panic!("No modifiers on component") }
       }
+   }
+   pub fn state(mut self, state: &str) -> Component {
+      match self {
+         Component::Text(ref mut m) => { push_modifier!(m.modifiers, State, (state,)) }
+         Component::Image(ref mut m) => { push_modifier!(m.modifiers, State, (state,)) }
+         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, State, (state,)) }
+         _ => {}
+      }; self
    }
    pub fn width(mut self, scalar: f64, unit: &str) -> Component {
       match self {
@@ -301,6 +318,7 @@ pub enum Event {
 }
 
 pub enum Modifier {
+   State(State),
    Color(Color),
    Border(Border),
    Scale(Scale),
