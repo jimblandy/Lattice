@@ -32,6 +32,7 @@ pub struct Window {
 }
 
 impl Window {
+   ///Creates a new configurable window
    pub fn new(title: &str) -> Window {
       Window {
          title: title.to_owned(),
@@ -39,10 +40,11 @@ impl Window {
          assets: Vec::new(),
       }
    }
+   ///Changes the fullscreen mode of the Window
    pub fn set_fullscreen(mut self, fullscreen: bool) -> Window {
       self.fullscreen = fullscreen; self
    }
-   pub fn load_assets(&mut self, mut assets: Vec<(&str,Vec<u8>)>) {
+   fn load_assets(&mut self, mut assets: Vec<(&str,Vec<u8>)>) {
       while let Some((path,contents)) = assets.pop() {
          self.assets.push((path.to_string(), contents));
       }

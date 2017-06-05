@@ -1,8 +1,11 @@
+//! Visual Components and Modifiers which are to be composed into a single render cycle.
+
 use ::events::Events;
 use std::rc::Rc;
 use std::cell::RefCell;
 use std::slice::Iter;
 
+/// A Modifier to define the width of a Component
 pub struct Width {
    pub scalar: f64,
    pub unit: String,
@@ -13,6 +16,7 @@ impl Width {
    }
 }
 
+/// A Modifier to define the height of a Component
 pub struct Height {
    pub scalar: f64,
    pub unit: String,
@@ -23,6 +27,7 @@ impl Height {
    }
 }
 
+/// A Modifier to define the Center of Gravity of a Component
 pub struct CenterOfGravity {
    pub horizontal: f64,
    pub vertical: f64,
@@ -33,6 +38,7 @@ impl CenterOfGravity {
    }
 }
 
+/// A Modifier to define the Horizontal Offset of a Component
 pub struct TranslateX {
    pub scalar: f64,
    pub unit: String,
@@ -43,6 +49,7 @@ impl TranslateX {
    }
 }
 
+/// A Modifier to define the Vertical Offset of a Component
 pub struct TranslateY {
    pub scalar: f64,
    pub unit: String,
@@ -53,6 +60,7 @@ impl TranslateY {
    }
 }
 
+/// A Modifier to define the Line Height of a Component
 pub struct Scale {
    pub scalar: f64,
    pub unit: String
@@ -63,6 +71,7 @@ impl Scale {
    }
 }
 
+/// A Modifier to define the Color of a Component
 pub struct Color {
    pub rgba: [f64; 4],
 }
@@ -72,6 +81,7 @@ impl Color {
    }
 }
 
+/// A Modifier to define the View-Bound State of a Component
 pub struct State {
    pub state: String
 }
@@ -81,6 +91,7 @@ impl State {
    }
 }
 
+/// A Modifier to define the Border of a Component
 pub struct Border {
    pub rgba: [f64; 4],
    pub scalar: f64,
@@ -92,6 +103,7 @@ impl Border {
    }
 }
 
+/// A Modifier to define the Shadow of a Component
 pub struct Shadow {
    pub boxed: [i64; 4],
    pub rgba: [f64; 4],
@@ -102,6 +114,7 @@ impl Shadow {
    }
 }
 
+/// A Component to describe an Image to be rendered
 pub struct Image {
    pub name: String,
    pub modifiers: Vec<Modifier>,
@@ -113,6 +126,7 @@ impl Image {
    }
 }
 
+/// A Component to describe Text to be rendered
 pub struct Text {
    pub content: String,
    pub font: String,
@@ -127,6 +141,7 @@ impl Text {
    }
 }
 
+/// A Component to describe a Rectangle to be rendered
 pub struct Rectangle {
    pub modifiers: Vec<Modifier>,
    pub events: Vec<(Event, Rc<RefCell<FnMut(&mut Events)>>)>,
