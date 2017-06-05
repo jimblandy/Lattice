@@ -1,5 +1,3 @@
-//! Visual Components and Modifiers which are to be composed into a single render cycle.
-
 use ::events::Events;
 use std::rc::Rc;
 use std::cell::RefCell;
