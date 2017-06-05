@@ -1,5 +1,5 @@
 use ::events::{Events};
-use ::view::{View, Component, Modifier, Image};
+use ::view::{View, Component, Modifier};
 
 extern crate rusttype;
 use self::rusttype::{FontCollection, Scale, point, PositionedGlyph};
@@ -19,6 +19,7 @@ extern crate image;
 use self::image::*;
 use std::collections::{HashMap};
 
+///A configurable window
 pub struct Window {
    title: String,
    fullscreen: bool,
@@ -38,11 +39,13 @@ impl Window {
    pub fn set_fullscreen(mut self, fullscreen: bool) -> Window {
       self.fullscreen = fullscreen; self
    }
-   fn load_assets(&mut self, mut assets: Vec<(&str,Vec<u8>)>) {
+   ///Loads assets. Is called in the with_assets! macro.
+   pub fn load_assets(&mut self, mut assets: Vec<(&str,Vec<u8>)>) {
       while let Some((path,contents)) = assets.pop() {
          self.assets.push((path.to_string(), contents));
       }
    }
+   ///Opens the window and begins the render cycle
    pub fn start<F>(&self, mut cl: F) 
        where F: FnMut(&mut Events) -> View {
 
@@ -253,8 +256,8 @@ impl Window {
                   }
                }
 
-            pos_x -= ((cog.0 * (width as f64)).ceil() as usize);
-            pos_y -= ((cog.1 * (height as f64)).ceil() as usize);
+            pos_x -= (cog.0 * (width as f64)).ceil() as usize;
+            pos_y -= (cog.1 * (height as f64)).ceil() as usize;
 
             if border_width > 0 {
                let clr = Color::RGBA((border_color[0]*255.0) as u8,
@@ -447,9 +450,9 @@ impl Window {
                         base_glyph.set_color_mod((sc[0]*255.0) as u8, (sc[1]*255.0) as u8, (sc[2]*255.0) as u8);
                         base_glyph.set_alpha_mod((sc[3]*255.0) as u8);
                         for sx in (shadow_box[0]-1) .. shadow_box[2] {
-                           let x = ((x as i64) + sx); if x<0 { continue; }; let x = x as i32;
+                           let x = (x as i64) + sx; if x<0 { continue; }; let x = x as i32;
                         for sy in (shadow_box[1]-1) .. shadow_box[3] {
-                           let y = ((y as i64) + sy); if y<0 { continue; }; let y = y as i32;
+                           let y = (y as i64) + sy; if y<0 { continue; }; let y = y as i32;
                            canvas.copy(base_glyph, None, Some(Rect::new(x, y, (glyph_width as u32), (line_height as u32)))).unwrap();
                         }}
                      }
