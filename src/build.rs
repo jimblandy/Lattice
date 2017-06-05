@@ -1,9 +1,7 @@
-use std;
 use std::io::Write;
 extern crate glob;
-use self::glob::{glob,GlobError};
+use self::glob::{glob};
 use std::fs::File;
-use std::path::Path;
 use std::io::prelude::*;
 
 

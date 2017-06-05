@@ -17,13 +17,7 @@ use self::sdl2::render::{Texture, BlendMode};
 
 extern crate image;
 use self::image::*;
-
 use std::collections::{HashMap};
-use std::path::Path;
-use std::fs::File;
-use std::io::{Write, Read, Seek, SeekFrom};
-use std::rc::*;
-use std::cell::*;
 
 pub struct Window {
    title: String,
@@ -70,7 +64,7 @@ impl Window {
       let mut textures = HashMap::new();
       let mut fonts = HashMap::new();
       let mut glyphs: HashMap<(char,usize),(usize,Texture)> = HashMap::new();
-      let mut em = 22.0f64;
+      let em = 22.0f64;
       for ai in 0..self.assets.len() {
          let (ref name,ref buf) = self.assets[ai];
          let ns = name.to_string();
@@ -103,9 +97,7 @@ impl Window {
          }
       }
 
-      let mut tick = 0;
       let mut event_pump = sdl_context.event_pump().unwrap();
-
       let mut events = Events::new();
 
       'running: loop {
@@ -120,8 +112,8 @@ impl Window {
          }
 
          let (width_px, height_px, dpi) = {
-            let mut window = canvas.window_mut();
-            let (rw,rh) = window.size();
+            let window = canvas.window_mut();
+            let (rw,_) = window.size();
             let (w,h) = window.drawable_size();
             let dpi = w/rw;
             (w as usize, h as usize, dpi as usize)
@@ -139,24 +131,6 @@ impl Window {
 
          for ci in 0..v.components.len() {
             let ref mut c = v.components[ci];
-
-            let mut evs = match *c {
-               Component::Text(ref mut m) => { let mut v = Vec::new(); v.extend(m.events.iter().cloned()); v }
-               Component::Image(ref mut m) => { let mut v = Vec::new(); v.extend(m.events.iter().cloned()); v }
-               Component::Rectangle(ref mut m) => { let mut v = Vec::new(); v.extend(m.events.iter().cloned()); v }
-               _ => { panic!("unexpected Component") }
-            };
-            for mut ev in evs {
-               match ev {
-                  (::view::Event::Always, mut f) => {
-                     let mut callback = f.borrow_mut();
-                     (&mut *callback)(&mut events);
-                  }
-                  (::view::Event::Hovered, mut f) => {}
-                  (::view::Event::Clicked, mut f) => {}
-                  (ref u,_) => { panic!("Unexpected ViewEvent: {:?}", u) }
-               }
-            }
 
             let bbox: (usize,usize,usize,usize) = {
 
@@ -259,7 +233,6 @@ impl Window {
                           u => { panic!("Invalid unit: {}", u); }
                         }
                      }
-                     _ => {}
                   }
                }
                for m in c.modifiers() {
@@ -291,12 +264,11 @@ impl Window {
 
                canvas.set_draw_color(clr);
                canvas.fill_rect(Rect::new((pos_x-border_width) as i32, (pos_y-border_width) as i32,
-                                          (width+2*border_width) as u32, (height+2*border_width) as u32));
+                                          (width+2*border_width) as u32, (height+2*border_width) as u32)).ok();
             }
 
-
             match *c {
-               Component::Rectangle(ref rectangle) => {
+               Component::Rectangle(_) => {
                   let clr = Color::RGBA((color[0]*255.0) as u8,
                                         (color[1]*255.0) as u8,
                                         (color[2]*255.0) as u8,
@@ -304,12 +276,12 @@ impl Window {
 
 
                   canvas.set_draw_color(clr);
-                  canvas.fill_rect(Rect::new(pos_x as i32, pos_y as i32, width as u32, height as u32));
+                  canvas.fill_rect(Rect::new(pos_x as i32, pos_y as i32, width as u32, height as u32)).ok();
 
                   (pos_x, pos_y, pos_x+width, pos_y+height)
                }
                Component::Image(ref image) => {
-                  let (tx, ty, ref texture) = *textures.get(image.name.as_str())
+                  let (_, _, ref texture) = *textures.get(image.name.as_str())
                                               .expect(format!("no texture named: {}", image.name).as_str());
                   canvas.copy(texture, None, Some(Rect::new(pos_x as i32, pos_y as i32, width as u32, height as u32))).unwrap();
 
@@ -381,7 +353,7 @@ impl Window {
                             }
                             continue;
                         }
-                        let (glyph_width, ref base_glyph) = match glyphs.get(&(c,line_height)) {
+                        let (glyph_width, _) = match glyphs.get(&(c,line_height)) {
                            Some(c) => {
                               let (w, ref g) = *c;
                               (w, g)
@@ -402,7 +374,7 @@ impl Window {
                               let mut real_width = 0;
                               let mut char_count = 0;
                               for si in prev_line..ri {
-                                 let (caret, height, c, line_height, glyph_width) = result[si];
+                                 let (_, _, c, _, glyph_width) = result[si];
                                  if si != (ri-1) || (c != ' ' && c != '\t') {
                                     real_width += glyph_width;
                                     char_count += 1;
@@ -424,7 +396,7 @@ impl Window {
                            if ri==result.len() || result[ri].0 == 0 {
                               let mut real_width = 0;
                               for si in prev_line..ri {
-                                 let (caret, height, c, line_height, glyph_width) = result[si];
+                                 let (_, _, c, _, glyph_width) = result[si];
                                  if si != (ri-1) || (c != ' ' && c != '\t') {
                                     real_width += glyph_width;
                                  }
@@ -445,7 +417,7 @@ impl Window {
                            if ri==result.len() || result[ri].0 == 0 {
                               let mut real_width = 0;
                               for si in prev_line..ri {
-                                 let (caret, height, c, line_height, glyph_width) = result[si];
+                                 let (_, _, c, _, glyph_width) = result[si];
                                  if si != (ri-1) || (c != ' ' && c != '\t') {
                                     real_width += glyph_width;
                                  }
@@ -475,9 +447,9 @@ impl Window {
                         base_glyph.set_color_mod((sc[0]*255.0) as u8, (sc[1]*255.0) as u8, (sc[2]*255.0) as u8);
                         base_glyph.set_alpha_mod((sc[3]*255.0) as u8);
                         for sx in (shadow_box[0]-1) .. shadow_box[2] {
-                           let mut x = ((x as i64) + sx); if x<0 { continue; }; let x = x as i32;
+                           let x = ((x as i64) + sx); if x<0 { continue; }; let x = x as i32;
                         for sy in (shadow_box[1]-1) .. shadow_box[3] {
-                           let mut y = ((y as i64) + sy); if y<0 { continue; }; let y = y as i32;
+                           let y = ((y as i64) + sy); if y<0 { continue; }; let y = y as i32;
                            canvas.copy(base_glyph, None, Some(Rect::new(x, y, (glyph_width as u32), (line_height as u32)))).unwrap();
                         }}
                      }
@@ -492,30 +464,32 @@ impl Window {
                }
                _ => { (0,0,0,0) }
             }};
-            let mut evs = match *c {
+            let evs = match *c {
                Component::Text(ref mut m) => { let mut v = Vec::new(); v.extend(m.events.iter().cloned()); v }
                Component::Image(ref mut m) => { let mut v = Vec::new(); v.extend(m.events.iter().cloned()); v }
                Component::Rectangle(ref mut m) => { let mut v = Vec::new(); v.extend(m.events.iter().cloned()); v }
                _ => { panic!("unexpected Component") }
             };
-            for mut ev in evs {
+            for ev in evs {
                match ev {
-                  (::view::Event::Always, mut f) => {}
-                  (::view::Event::Hovered, mut f) => {
+                  (::view::Event::Always, f) => {
+                     let mut callback = f.borrow_mut();
+                     (&mut *callback)(&mut events);
+                  }
+                  (::view::Event::Hovered, f) => {
                      if bbox.0 <= cursor_x && cursor_x < bbox.2 &&
                         bbox.1 <= cursor_y && cursor_y < bbox.3 {
                         let mut callback = f.borrow_mut();
                         (&mut *callback)(&mut events);
                      }
                   }
-                  (::view::Event::Clicked, mut f) => {
+                  (::view::Event::Clicked, f) => {
                      if click && bbox.0 <= cursor_x && cursor_x < bbox.2 &&
                         bbox.1 <= cursor_y && cursor_y < bbox.3 {
                         let mut callback = f.borrow_mut();
                         (&mut *callback)(&mut events);
                      }
                   }
-                  (ref u,_) => { panic!("Unexpected ViewEvent: {:?}", u) }
                }
             }
          }
