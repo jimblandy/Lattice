@@ -278,19 +278,20 @@ impl Window {
                   }
                }
 
-               if border_width > 0 {
-                  let clr = Color::RGBA((border_color[0]*255.0) as u8,
-                                        (border_color[1]*255.0) as u8,
-                                        (border_color[2]*255.0) as u8,
-                                        (border_color[3]*255.0) as u8);
-
-                  canvas.set_draw_color(clr);
-                  canvas.fill_rect(Rect::new((pos_x-border_width) as i32, (pos_y-border_width) as i32,
-                                             (width+2*border_width) as u32, (height+2*border_width) as u32));
-               }
-
             pos_x -= ((cog.0 * (width as f64)).ceil() as usize);
             pos_y -= ((cog.1 * (height as f64)).ceil() as usize);
+
+            if border_width > 0 {
+               let clr = Color::RGBA((border_color[0]*255.0) as u8,
+                                     (border_color[1]*255.0) as u8,
+                                     (border_color[2]*255.0) as u8,
+                                     (border_color[3]*255.0) as u8);
+
+               canvas.set_draw_color(clr);
+               canvas.fill_rect(Rect::new((pos_x-border_width) as i32, (pos_y-border_width) as i32,
+                                          (width+2*border_width) as u32, (height+2*border_width) as u32));
+            }
+
 
             match *c {
                Component::Rectangle(ref rectangle) => {
