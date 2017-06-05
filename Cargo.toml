@@ -1,8 +1,8 @@
 [package]
 name = "Lattice"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["Andrew <andrew@subarctic.org>"]
-description = "A third generation window manager for FRP in Rust"
+description = "A Simple Window Manager for Functional Reactive Programming in Rust"
 repository = "https://github.com/andrew-lucker/Lattice"
 documentation = "https://github.com/andrew-lucker/Lattice"
 keywords = ["windowing", "graphics", "api", "functional"]
