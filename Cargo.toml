@@ -1,10 +1,10 @@
 [package]
 name = "Lattice"
-version = "0.3.3"
+version = "0.3.4"
 authors = ["Andrew <andrew@subarctic.org>"]
 description = "A Simple Window Manager for Functional Reactive Programming in Rust"
 repository = "https://github.com/andrew-lucker/Lattice"
-documentation = "https://docs.rs/releases/search?query=lattice"
+documentation = "https://docs.rs/Lattice/"
 keywords = ["windowing", "graphics", "api", "functional"]
 categories = ["rendering","games","api-bindings","game-engines","multimedia"]
 license = "MIT"
