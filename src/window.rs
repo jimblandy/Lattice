@@ -465,13 +465,11 @@ impl Window {
 
                   (pos_x, pos_y, max_x, max_y)
                }
-               _ => { (0,0,0,0) }
             }};
             let evs = match *c {
                Component::Text(ref mut m) => { let mut v = Vec::new(); v.extend(m.events.iter().cloned()); v }
                Component::Image(ref mut m) => { let mut v = Vec::new(); v.extend(m.events.iter().cloned()); v }
                Component::Rectangle(ref mut m) => { let mut v = Vec::new(); v.extend(m.events.iter().cloned()); v }
-               _ => { panic!("unexpected Component") }
             };
             for ev in evs {
                match ev {

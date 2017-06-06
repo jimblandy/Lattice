@@ -253,9 +253,6 @@ macro_rules! push_modifier {
 
 ///A renderable View Component
 pub enum Component {
-   ///Component::Modifier
-   Modifier(Modifier),
-
    ///Component::Image
    Image(Image),
 
@@ -273,7 +270,6 @@ impl Component {
          Component::Text(ref m) => { m.modifiers.iter() }
          Component::Image(ref m) => { m.modifiers.iter() }
          Component::Rectangle(ref m) => { m.modifiers.iter() }
-         _ => { panic!("No modifiers on component") }
       }
    }
 
@@ -283,7 +279,6 @@ impl Component {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, State, (state,)) }
          Component::Image(ref mut m) => { push_modifier!(m.modifiers, State, (state,)) }
          Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, State, (state,)) }
-         _ => {}
       }; self
    }
 
@@ -293,7 +288,6 @@ impl Component {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, Width, (scalar, unit,)) }
          Component::Image(ref mut m) => { push_modifier!(m.modifiers, Width, (scalar, unit,)) }
          Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Width, (scalar, unit,)) }
-         _ => {}
       }; self
    }
 
@@ -303,7 +297,6 @@ impl Component {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, Height, (scalar, unit,)) }
          Component::Image(ref mut m) => { push_modifier!(m.modifiers, Height, (scalar, unit,)) }
          Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Height, (scalar, unit,)) }
-         _ => {}
       }; self
    }
 
@@ -313,7 +306,6 @@ impl Component {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, CenterOfGravity, (x, y,)) }
          Component::Image(ref mut m) => { push_modifier!(m.modifiers, CenterOfGravity, (x, y,)) }
          Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, CenterOfGravity, (x, y,)) }
-         _ => {}
       }; self
    }
 
@@ -323,7 +315,6 @@ impl Component {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, TranslateX, (scalar, unit,)) }
          Component::Image(ref mut m) => { push_modifier!(m.modifiers, TranslateX, (scalar, unit,)) }
          Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, TranslateX, (scalar, unit,)) }
-         _ => {}
       }; self
    }
 
@@ -333,7 +324,6 @@ impl Component {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, TranslateY, (scalar, unit,)) }
          Component::Image(ref mut m) => { push_modifier!(m.modifiers, TranslateY, (scalar, unit,)) }
          Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, TranslateY, (scalar, unit,)) }
-         _ => {}
       }; self
    }
 
@@ -343,7 +333,6 @@ impl Component {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, Color, (rgba,)) }
          Component::Image(ref mut m) => { push_modifier!(m.modifiers, Color, (rgba,)) }
          Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Color, (rgba,)) }
-         _ => {}
       }; self
    }
 
@@ -353,7 +342,6 @@ impl Component {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, Scale, (scalar, unit,)) }
          Component::Image(ref mut m) => { push_modifier!(m.modifiers, Scale, (scalar, unit,)) }
          Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Scale, (scalar, unit,)) }
-         _ => {}
       }; self
    }
 
@@ -371,7 +359,6 @@ impl Component {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, Border, (clr, scalar, unit,)) }
          Component::Image(ref mut m) => { push_modifier!(m.modifiers, Border, (clr, scalar, unit,)) }
          Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Border, (clr, scalar, unit,)) }
-         _ => {}
       }; self
    }
 
@@ -381,7 +368,6 @@ impl Component {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, Shadow, (d, c,)) }
          Component::Image(ref mut m) => { push_modifier!(m.modifiers, Shadow, (d, c,)) }
          Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Shadow, (d, c,)) }
-         _ => {}
       }; self
    }
 
@@ -392,7 +378,6 @@ impl Component {
          Component::Text(ref mut m) => { push_event!(m.events, Clicked, f); }
          Component::Image(ref mut m) => { push_event!(m.events, Clicked, f); }
          Component::Rectangle(ref mut m) => { push_event!(m.events, Clicked, f); }
-         _ => {}
       }; self
    }
 
@@ -403,7 +388,6 @@ impl Component {
          Component::Text(ref mut m) => { push_event!(m.events, Hovered, f); }
          Component::Image(ref mut m) => { push_event!(m.events, Hovered, f); }
          Component::Rectangle(ref mut m) => { push_event!(m.events, Hovered, f); }
-         _ => {}
       }; self
    }
 
@@ -414,7 +398,6 @@ impl Component {
          Component::Text(ref mut m) => { push_event!(m.events, Always, f); }
          Component::Image(ref mut m) => { push_event!(m.events, Always, f); }
          Component::Rectangle(ref mut m) => { push_event!(m.events, Always, f); }
-         _ => {}
       }; self
    }
 }
