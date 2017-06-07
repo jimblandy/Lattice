@@ -1,3 +1,0 @@
-[("assets/background.png",include_bytes!("assets/background.png").to_vec()),
- ("assets/handcloth.png",include_bytes!("assets/handcloth.png").to_vec()),
- ("assets/Macondo-Regular.ttf",include_bytes!("assets/Macondo-Regular.ttf").to_vec()),]

@@ -3,7 +3,7 @@ extern crate glob;
 use self::glob::{glob};
 use std::fs::File;
 use std::io::prelude::*;
-
+use std::path::Path;
 
 macro_rules! read_entry {
    ($f: ident, $p: ident) => (
@@ -14,9 +14,9 @@ macro_rules! read_entry {
             in_file.read_to_end(&mut contents).expect("read file");
             let path = path.strip_prefix("src").expect("src prefix");
             let path = path.to_str().unwrap();
-            let path = format!("\"{}\"", path);
-            $f.write_all( format!("({},include_bytes!({}).to_vec()),", path, path).as_bytes() ).expect("file write");
-
+            let path_ref = format!("\"{}\"", path).replace("\\","/");
+            let path_bytes = format!("\"{}\"", path).replace("\\","\\\\");
+            $f.write_all( format!("({},include_bytes!({}).to_vec()),", path_ref, path_bytes).as_bytes() ).expect("file write");
          }
          Err(e) => println!("{:?}", e),
       }
@@ -25,7 +25,8 @@ macro_rules! read_entry {
 
 /// Looks for an ./assets directory and copies all resource files into an assets.in file.
 pub fn with_assets() {
-   let mut out_file = File::create("src/assets.in").expect("file open");
+   let path = Path::new("src").join("assets.in");
+   let mut out_file = File::create(path).expect("file open");
    out_file.write_all( b"[" ).expect("file write");
    for entry in glob("src/assets/**/*.png").expect("Failed to read glob pattern") {
       read_entry!(out_file, entry)
