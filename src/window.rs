@@ -1,6 +1,8 @@
 use ::events::{Events};
 use ::view::{View, Component, Modifier};
 
+extern crate time;
+
 extern crate rusttype;
 use self::rusttype::{FontCollection, Scale, point, PositionedGlyph};
 
@@ -48,6 +50,7 @@ impl Window {
    ///Opens the window and begins the render cycle
    pub fn start<F>(&self, mut cl: F) 
        where F: FnMut(&mut Events) -> View {
+      let epoch = time::precise_time_s();
 
       let sdl_context = sdl2::init().unwrap();
       let video_subsystem = sdl_context.video().unwrap();
@@ -104,6 +107,8 @@ impl Window {
       let mut events = Events::new();
 
       'running: loop {
+         events.time_elapsed = time::precise_time_s() - epoch;
+
          let mut click = false;
          for event in event_pump.poll_iter() {
             match event {
