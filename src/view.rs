@@ -3,18 +3,62 @@ use std::rc::Rc;
 use std::cell::RefCell;
 use std::slice::Iter;
 
+#[derive(Debug)]
+/// A typesafe unit for viewable components and modifiers
+pub enum ViewUnit {
+   ///em
+   Em,
+
+   ///Axis Percent
+   Percent,
+
+   ///Horizontal Percent
+   HorizontalPercent,
+
+   ///Vertical Percent
+   VerticalPercent,
+
+   ///min(Vertical,Horizontal) Percent
+   MinPercent,
+
+   ///max(Vertical,Horizontal) Percent
+   MaxPercent,
+
+   ///Centered in Container
+   Center,
+
+   ///Pixel
+   Pixel,
+}
+impl ViewUnit {
+   /// Convert a raw string to ViewUnit
+   pub fn new(s: &str) -> ViewUnit {
+      match s {
+         "em" => { ViewUnit::Em }
+         "%" => { ViewUnit::Percent }
+         "h%" => { ViewUnit::HorizontalPercent }
+         "v%" => { ViewUnit::VerticalPercent }
+         "<%" => { ViewUnit::MinPercent }
+         ">%" => { ViewUnit::MaxPercent }
+         "=" => { ViewUnit::Center }
+         "px" => { ViewUnit::Pixel }
+         u => { panic!("Invalid View Unit: {}", u) }
+      }
+   }
+}
+
 /// A Modifier to define the width of a Component
 pub struct Width {
    ///scalar
    pub scalar: f64,
 
    ///unit
-   pub unit: String,
+   pub unit: ViewUnit,
 }
 impl Width {
    ///Create a new Width Modifier
-   pub fn new(scalar: f64, unit: &str) -> Modifier {
-      Modifier::Width(Width { scalar:scalar, unit:unit.to_owned() })
+   pub fn new(scalar: f64, unit: ViewUnit) -> Modifier {
+      Modifier::Width(Width { scalar:scalar, unit:unit })
    }
 }
 
@@ -24,12 +68,12 @@ pub struct Height {
    pub scalar: f64,
 
    ///unit
-   pub unit: String,
+   pub unit: ViewUnit,
 }
 impl Height {
    ///Create a new Height Modifier
-   pub fn new(scalar: f64, unit: &str) -> Modifier {
-      Modifier::Height(Height { scalar:scalar, unit:unit.to_owned() })
+   pub fn new(scalar: f64, unit: ViewUnit) -> Modifier {
+      Modifier::Height(Height { scalar:scalar, unit:unit })
    }
 }
 
@@ -54,12 +98,12 @@ pub struct TranslateX {
    pub scalar: f64,
 
    ///unit
-   pub unit: String,
+   pub unit: ViewUnit,
 }
 impl TranslateX {
    ///Create a new TranslateX Modifier
-   pub fn new(scalar: f64, unit: &str) -> Modifier {
-      Modifier::TranslateX(TranslateX { scalar:scalar, unit:unit.to_owned() })
+   pub fn new(scalar: f64, unit: ViewUnit) -> Modifier {
+      Modifier::TranslateX(TranslateX { scalar:scalar, unit:unit })
    }
 }
 
@@ -69,12 +113,12 @@ pub struct TranslateY {
    pub scalar: f64,
 
    ///unit
-   pub unit: String,
+   pub unit: ViewUnit,
 }
 impl TranslateY {
    ///Create a new TranslateY Modifier
-   pub fn new(scalar: f64, unit: &str) -> Modifier {
-      Modifier::TranslateY(TranslateY { scalar:scalar, unit:unit.to_owned() })
+   pub fn new(scalar: f64, unit: ViewUnit) -> Modifier {
+      Modifier::TranslateY(TranslateY { scalar:scalar, unit:unit })
    }
 }
 
@@ -84,12 +128,12 @@ pub struct Scale {
    pub scalar: f64,
 
    ///unit
-   pub unit: String
+   pub unit: ViewUnit
 }
 impl Scale {
    ///Create a new Scale Modifier
-   pub fn new(scalar: f64, unit: &str) -> Modifier {
-      Modifier::Scale(Scale { scalar:scalar, unit:unit.to_owned() })
+   pub fn new(scalar: f64, unit: ViewUnit) -> Modifier {
+      Modifier::Scale(Scale { scalar:scalar, unit:unit })
    }
 }
 
@@ -126,12 +170,12 @@ pub struct Border {
    pub scalar: f64,
 
    ///unit
-   pub unit: String,
+   pub unit: ViewUnit,
 }
 impl Border {
    ///Create a new Border Modifier
-   pub fn new(rgba: [f64; 4], scalar: f64, unit: &str) -> Modifier {
-      Modifier::Border(Border { rgba:rgba, scalar:scalar, unit:unit.to_owned() })
+   pub fn new(rgba: [f64; 4], scalar: f64, unit: ViewUnit) -> Modifier {
+      Modifier::Border(Border { rgba:rgba, scalar:scalar, unit:unit })
    }
 }
 
@@ -203,7 +247,7 @@ pub struct Rectangle {
 }
 impl Rectangle {
    ///Create a new Rectangle Component
-   pub fn new(w: f64, wunit: &str, h: f64, hunit: &str) -> Component {
+   pub fn new(w: f64, wunit: ViewUnit, h: f64, hunit: ViewUnit) -> Component {
       Component::Rectangle(Rectangle { modifiers:Vec::new(), events:Vec::new() })
       .width(w, wunit)
       .height(h, hunit)
@@ -283,7 +327,7 @@ impl Component {
    }
 
    ///Add a Width Modifier to this Component
-   pub fn width(mut self, scalar: f64, unit: &str) -> Component {
+   pub fn width(mut self, scalar: f64, unit: ViewUnit) -> Component {
       match self {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, Width, (scalar, unit,)) }
          Component::Image(ref mut m) => { push_modifier!(m.modifiers, Width, (scalar, unit,)) }
@@ -292,7 +336,7 @@ impl Component {
    }
 
    ///Add a Height Modifier to this Component
-   pub fn height(mut self, scalar: f64, unit: &str) -> Component {
+   pub fn height(mut self, scalar: f64, unit: ViewUnit) -> Component {
       match self {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, Height, (scalar, unit,)) }
          Component::Image(ref mut m) => { push_modifier!(m.modifiers, Height, (scalar, unit,)) }
@@ -310,7 +354,7 @@ impl Component {
    }
 
    ///Add a TranslateX Modifier to this Component
-   pub fn translate_x(mut self, scalar: f64, unit: &str) -> Component {
+   pub fn translate_x(mut self, scalar: f64, unit: ViewUnit) -> Component {
       match self {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, TranslateX, (scalar, unit,)) }
          Component::Image(ref mut m) => { push_modifier!(m.modifiers, TranslateX, (scalar, unit,)) }
@@ -319,7 +363,7 @@ impl Component {
    }
 
    ///Add a TranslateY Modifier to this Component
-   pub fn translate_y(mut self, scalar: f64, unit: &str) -> Component {
+   pub fn translate_y(mut self, scalar: f64, unit: ViewUnit) -> Component {
       match self {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, TranslateY, (scalar, unit,)) }
          Component::Image(ref mut m) => { push_modifier!(m.modifiers, TranslateY, (scalar, unit,)) }
@@ -337,7 +381,7 @@ impl Component {
    }
 
    ///Add a Scale Modifier to this Component
-   pub fn scale(mut self, scalar: f64, unit: &str) -> Component {
+   pub fn scale(mut self, scalar: f64, unit: ViewUnit) -> Component {
       match self {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, Scale, (scalar, unit,)) }
          Component::Image(ref mut m) => { push_modifier!(m.modifiers, Scale, (scalar, unit,)) }
@@ -354,7 +398,7 @@ impl Component {
    }
 
    ///Add a Border Modifier to this Component
-   pub fn border(mut self, clr: [f64; 4], scalar: f64, unit: &str) -> Component {
+   pub fn border(mut self, clr: [f64; 4], scalar: f64, unit: ViewUnit) -> Component {
       match self {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, Border, (clr, scalar, unit,)) }
          Component::Image(ref mut m) => { push_modifier!(m.modifiers, Border, (clr, scalar, unit,)) }
@@ -399,6 +443,59 @@ impl Component {
          Component::Image(ref mut m) => { push_event!(m.events, Always, f); }
          Component::Rectangle(ref mut m) => { push_event!(m.events, Always, f); }
       }; self
+   }
+}
+
+///Provide str shorthand for units
+trait ShorthandComponent {
+   ///Add a Width Modifier to this Component
+   fn width(self, scalar: f64, unit: &str) -> Self;
+
+   ///Add a height Modifier to this Component   
+   fn height(self, scalar: f64, unit: &str) -> Self;
+
+   ///Add a TranslateX Modifier to this Component
+   fn translate_x(self, scalar: f64, unit: &str) -> Self;
+
+   ///Add a TranslateY Modifier to this Component
+   fn translate_y(self, scalar: f64, unit: &str) -> Self;
+
+   ///Add a Scale Modifier to this Component
+   fn scale(self, scalar: f64, unit: &str) -> Self;
+
+   ///Add a Border Modifier to this Component
+   fn border(self, clr: [f64; 4], scalar: f64, unit: &str) -> Self;
+}
+
+impl ShorthandComponent for Component {
+   ///Add a Width Modifier to this Component
+   fn width(mut self, scalar: f64, unit: &str) -> Self {
+      self.width(scalar, ViewUnit::new(unit))
+   }
+
+   ///Add a height Modifier to this Component   
+   fn height(mut self, scalar: f64, unit: &str) -> Self {
+      self.height(scalar, ViewUnit::new(unit))
+   }
+
+   ///Add a TranslateX Modifier to this Component
+   fn translate_x(mut self, scalar: f64, unit: &str) -> Self {
+      self.translate_x(scalar, ViewUnit::new(unit))
+   }
+
+   ///Add a TranslateY Modifier to this Component
+   fn translate_y(mut self, scalar: f64, unit: &str) -> Self {
+      self.translate_y(scalar, ViewUnit::new(unit))
+   }
+
+   ///Add a Scale Modifier to this Component
+   fn scale(mut self, scalar: f64, unit: &str) -> Self {
+      self.scale(scalar, ViewUnit::new(unit))
+   }
+
+   ///Add a Border Modifier to this Component
+   fn border(self, clr: [f64; 4], scalar: f64, unit: &str) -> Self {
+      self.border(clr, scalar, ViewUnit::new(unit))
    }
 }
 

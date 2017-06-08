@@ -1,5 +1,5 @@
 use ::events::{Events};
-use ::view::{View, Component, Modifier};
+use ::view::{View, Component, Modifier, ViewUnit};
 
 extern crate time;
 
@@ -164,81 +164,80 @@ impl Window {
                      Modifier::Color(ref s) => {
                         color = s.rgba.clone();
                      }
+
                      Modifier::Border(ref s) => {
-                        border_width = match s.unit.as_str() {
-                          "em" => { (em * s.scalar).ceil() as usize }
-                          "w%" => { (width_pct * s.scalar).ceil() as usize }
-                          "h%" => { (height_pct * s.scalar).ceil() as usize }
-                          ">%" => { let pct = if height_pct>width_pct { height_pct } else { width_pct }; (pct * s.scalar).ceil() as usize }
-                          "<%" => { let pct = if height_pct<width_pct { height_pct } else { width_pct }; (pct * s.scalar).ceil() as usize }
-                          "px" => { (s.scalar) as usize }
-                           u => { panic!("Invalid unit: {}", u) }
+                        border_width = match s.unit {
+                          ViewUnit::Em => { (em * s.scalar).ceil() as usize }
+                          ViewUnit::HorizontalPercent => { (width_pct * s.scalar).ceil() as usize }
+                          ViewUnit::VerticalPercent => { (height_pct * s.scalar).ceil() as usize }
+                          ViewUnit::MaxPercent => { let pct = if height_pct>width_pct { height_pct } else { width_pct }; (pct * s.scalar).ceil() as usize }
+                          ViewUnit::MinPercent => { let pct = if height_pct<width_pct { height_pct } else { width_pct }; (pct * s.scalar).ceil() as usize }
+                          ViewUnit::Pixel => { (s.scalar) as usize }
+                          ref u => { panic!("Invalid unit for border: {:?}", u) }
                         };
                         border_color = s.rgba.clone();
                      }
                      Modifier::Scale(ref s) => {
-                        match s.unit.as_str() {
-                          "em" => { pixel_height = (em * s.scalar).ceil() as usize; }
-                          "%" => { pixel_height = (height_pct * s.scalar).ceil() as usize; }
-                          "w%" => { pixel_height = (width_pct * s.scalar).ceil() as usize; }
-                          "h%" => { pixel_height = (height_pct * s.scalar).ceil() as usize; }
-                          ">%" => { let pct = if height_pct>width_pct { height_pct } else { width_pct }; pixel_height = (pct * s.scalar).ceil() as usize; }
-                          "<%" => { let pct = if height_pct<width_pct { height_pct } else { width_pct }; pixel_height = (pct * s.scalar).ceil() as usize; }
-                          "px" => { pixel_height = (s.scalar) as usize; }
-                           u => { panic!("Invalid unit: {}", u); }
+                        match s.unit {
+                          ViewUnit::Em => { pixel_height = (em * s.scalar).ceil() as usize; }
+                          ViewUnit::Percent => { pixel_height = (height_pct * s.scalar).ceil() as usize; }
+                          ViewUnit::HorizontalPercent => { pixel_height = (width_pct * s.scalar).ceil() as usize; }
+                          ViewUnit::VerticalPercent => { pixel_height = (height_pct * s.scalar).ceil() as usize; }
+                          ViewUnit::MaxPercent => { let pct = if height_pct>width_pct { height_pct } else { width_pct }; pixel_height = (pct * s.scalar).ceil() as usize; }
+                          ViewUnit::MinPercent => { let pct = if height_pct<width_pct { height_pct } else { width_pct }; pixel_height = (pct * s.scalar).ceil() as usize; }
+                          ViewUnit::Pixel => { pixel_height = (s.scalar) as usize; }
+                          ref u => { panic!("Invalid unit for scale: {:?}", u) }
                         }
                      }
                      Modifier::Width(ref s) => {
-                        match s.unit.as_str() {
-                          "em" => { width = (em * s.scalar).ceil() as usize; }
-                          "%" => { width = (width_pct * s.scalar).ceil() as usize; }
-                          "w%" => { width = (width_pct * s.scalar).ceil() as usize; }
-                          "h%" => { width = (height_pct * s.scalar).ceil() as usize; }
-                          ">%" => { let pct = if height_pct>width_pct { height_pct } else { width_pct }; width = (pct * s.scalar).ceil() as usize; }
-                          "<%" => { let pct = if height_pct<width_pct { height_pct } else { width_pct }; width = (pct * s.scalar).ceil() as usize; }
-                          "px" => { width = (s.scalar) as usize; }
-                           u => { panic!("Invalid unit: {}", u); }
+                        match s.unit {
+                          ViewUnit::Em => { width = (em * s.scalar).ceil() as usize; }
+                          ViewUnit::Percent => { width = (width_pct * s.scalar).ceil() as usize; }
+                          ViewUnit::HorizontalPercent => { width = (width_pct * s.scalar).ceil() as usize; }
+                          ViewUnit::VerticalPercent => { width = (height_pct * s.scalar).ceil() as usize; }
+                          ViewUnit::MaxPercent => { let pct = if height_pct>width_pct { height_pct } else { width_pct }; width = (pct * s.scalar).ceil() as usize; }
+                          ViewUnit::MinPercent => { let pct = if height_pct<width_pct { height_pct } else { width_pct }; width = (pct * s.scalar).ceil() as usize; }
+                          ViewUnit::Pixel => { width = (s.scalar) as usize; }
+                          ref u => { panic!("Invalid unit for width: {:?}", u) }
                         }
                      }
                      Modifier::Height(ref s) => {
-                        match s.unit.as_str() {
-                          "em" => { height = (em * s.scalar).ceil() as usize; }
-                          "%" => { height = (height_pct * s.scalar).ceil() as usize; }
-                          "w%" => { height = (width_pct * s.scalar).ceil() as usize; }
-                          "h%" => { height = (height_pct * s.scalar).ceil() as usize; }
-                          ">%" => { let pct = if height_pct>width_pct { height_pct } else { width_pct }; height = (pct * s.scalar).ceil() as usize; }
-                          "<%" => { let pct = if height_pct<width_pct { height_pct } else { width_pct }; height = (pct * s.scalar).ceil() as usize; }
-                          "px" => { height = (s.scalar) as usize; }
-                           u => { panic!("Invalid unit: {}", u); }
+                        match s.unit {
+                          ViewUnit::Em => { height = (em * s.scalar).ceil() as usize; }
+                          ViewUnit::Percent => { height = (height_pct * s.scalar).ceil() as usize; }
+                          ViewUnit::HorizontalPercent => { height = (width_pct * s.scalar).ceil() as usize; }
+                          ViewUnit::VerticalPercent => { height = (height_pct * s.scalar).ceil() as usize; }
+                          ViewUnit::MaxPercent => { let pct = if height_pct>width_pct { height_pct } else { width_pct }; height = (pct * s.scalar).ceil() as usize; }
+                          ViewUnit::MinPercent => { let pct = if height_pct<width_pct { height_pct } else { width_pct }; height = (pct * s.scalar).ceil() as usize; }
+                          ViewUnit::Pixel => { height = (s.scalar) as usize; }
+                          ref u => { panic!("Invalid unit for height: {:?}", u) }
                         }
                      }
                      Modifier::CenterOfGravity(ref s) => {
                         cog = (s.horizontal, s.vertical);
                      }
                      Modifier::TranslateX(ref s) => {
-                        match s.unit.as_str() {
-                          "em" => { pos_x = (em * s.scalar).ceil() as usize; }
-                          "%" => { pos_x = (width_pct * s.scalar).ceil() as usize; }
-                          "w%" => { pos_x = (width_pct * s.scalar).ceil() as usize; }
-                          "h%" => { pos_x = (height_pct * s.scalar).ceil() as usize; }
-                          ">%" => { let pct = if height_pct>width_pct { height_pct } else { width_pct }; pos_x = (pct * s.scalar).ceil() as usize; }
-                          "<%" => { let pct = if height_pct<width_pct { height_pct } else { width_pct }; pos_x = (pct * s.scalar).ceil() as usize; }
-                          "=" => { }
-                          "px" => { pos_x = (s.scalar) as usize; }
-                          u => { panic!("Invalid unit: {}", u); }
+                        match s.unit {
+                          ViewUnit::Em => { pos_x = (em * s.scalar).ceil() as usize; }
+                          ViewUnit::Percent => { pos_x = (width_pct * s.scalar).ceil() as usize; }
+                          ViewUnit::HorizontalPercent => { pos_x = (width_pct * s.scalar).ceil() as usize; }
+                          ViewUnit::VerticalPercent => { pos_x = (height_pct * s.scalar).ceil() as usize; }
+                          ViewUnit::MaxPercent => { let pct = if height_pct>width_pct { height_pct } else { width_pct }; pos_x = (pct * s.scalar).ceil() as usize; }
+                          ViewUnit::MinPercent => { let pct = if height_pct<width_pct { height_pct } else { width_pct }; pos_x = (pct * s.scalar).ceil() as usize; }
+                          ViewUnit::Center => { }
+                          ViewUnit::Pixel => { pos_x = (s.scalar) as usize; }
                         }
                      }
                      Modifier::TranslateY(ref s) => {
-                        match s.unit.as_str() {
-                          "em" => { pos_y = (em * s.scalar).ceil() as usize; }
-                          "%" => { pos_y = (height_pct * s.scalar).ceil() as usize; }
-                          "w%" => { pos_y = (width_pct * s.scalar).ceil() as usize; }
-                          "h%" => { pos_y = (height_pct * s.scalar).ceil() as usize; }
-                          ">%" => { let pct = if height_pct>width_pct { height_pct } else { width_pct }; pos_y = (pct * s.scalar).ceil() as usize; }
-                          "<%" => { let pct = if height_pct<width_pct { height_pct } else { width_pct }; pos_y = (pct * s.scalar).ceil() as usize; }
-                          "=" => { }
-                          "px" => { pos_y = (s.scalar) as usize; }
-                          u => { panic!("Invalid unit: {}", u); }
+                        match s.unit {
+                          ViewUnit::Em => { pos_y = (em * s.scalar).ceil() as usize; }
+                          ViewUnit::Percent => { pos_y = (height_pct * s.scalar).ceil() as usize; }
+                          ViewUnit::HorizontalPercent => { pos_y = (width_pct * s.scalar).ceil() as usize; }
+                          ViewUnit::VerticalPercent => { pos_y = (height_pct * s.scalar).ceil() as usize; }
+                          ViewUnit::MaxPercent => { let pct = if height_pct>width_pct { height_pct } else { width_pct }; pos_y = (pct * s.scalar).ceil() as usize; }
+                          ViewUnit::MinPercent => { let pct = if height_pct<width_pct { height_pct } else { width_pct }; pos_y = (pct * s.scalar).ceil() as usize; }
+                          ViewUnit::Center => { }
+                          ViewUnit::Pixel => { pos_y = (s.scalar) as usize; }
                         }
                      }
                   }
@@ -246,14 +245,14 @@ impl Window {
                for m in c.modifiers() {
                   match *m {
                      Modifier::TranslateX(ref t) => {
-                        match t.unit.as_str() {
-                          "=" => { pos_x = (((width_px - width) as f64)*0.5).ceil() as usize; }
+                        match t.unit {
+                          ViewUnit::Center => { pos_x = (((width_px - width) as f64)*0.5).ceil() as usize; }
                           _ => { }
                         }
                      }
                      Modifier::TranslateY(ref t) => {
-                        match t.unit.as_str() {
-                          "=" => { pos_y = (((height_px - height) as f64)*0.5).ceil() as usize; }
+                        match t.unit {
+                          ViewUnit::Center => { pos_y = (((height_px - height) as f64)*0.5).ceil() as usize; }
                           _ => { }
                         }
                      }
