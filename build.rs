@@ -11,9 +11,8 @@ pub fn main() {
    f.write_all(b"[");
    if cfg!(windows) {
       for ast in example_assets.iter() {
-         f.write_all( format!("(\"{}\",include_bytes!(\"{}\").to_vec()),",ast,ast.to_string().replace("/","\\")).as_bytes() );
+         f.write_all( format!("(\"{}\",include_bytes!(\"{}\").to_vec()),",ast,ast.to_string().replace("/","\\\\")).as_bytes() );
       }
-      f.write_all(b"Hello Windows");
    } else {
       for ast in example_assets.iter() {
          f.write_all( format!("(\"{}\",include_bytes!(\"{}\").to_vec()),",ast,ast.to_string()).as_bytes() );
