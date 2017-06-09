@@ -46,6 +46,11 @@ impl ViewUnit {
       }
    }
 }
+impl<'a> Into<ViewUnit> for &'a str {
+    fn into(self) -> ViewUnit {
+       ViewUnit::new(self)
+    }
+}
 
 /// A Modifier to define the width of a Component
 pub struct Width {
@@ -327,20 +332,22 @@ impl Component {
    }
 
    ///Add a Width Modifier to this Component
-   pub fn width(mut self, scalar: f64, unit: ViewUnit) -> Component {
+   pub fn width<T>(mut self, scalar: f64, unit: T) -> Component
+      where T: Into<ViewUnit> {
       match self {
-         Component::Text(ref mut m) => { push_modifier!(m.modifiers, Width, (scalar, unit,)) }
-         Component::Image(ref mut m) => { push_modifier!(m.modifiers, Width, (scalar, unit,)) }
-         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Width, (scalar, unit,)) }
+         Component::Text(ref mut m) => { push_modifier!(m.modifiers, Width, (scalar, unit.into(),)) }
+         Component::Image(ref mut m) => { push_modifier!(m.modifiers, Width, (scalar, unit.into(),)) }
+         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Width, (scalar, unit.into(),)) }
       }; self
    }
 
    ///Add a Height Modifier to this Component
-   pub fn height(mut self, scalar: f64, unit: ViewUnit) -> Component {
+   pub fn height<T>(mut self, scalar: f64, unit: T) -> Component
+      where T: Into<ViewUnit> {
       match self {
-         Component::Text(ref mut m) => { push_modifier!(m.modifiers, Height, (scalar, unit,)) }
-         Component::Image(ref mut m) => { push_modifier!(m.modifiers, Height, (scalar, unit,)) }
-         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Height, (scalar, unit,)) }
+         Component::Text(ref mut m) => { push_modifier!(m.modifiers, Height, (scalar, unit.into(),)) }
+         Component::Image(ref mut m) => { push_modifier!(m.modifiers, Height, (scalar, unit.into(),)) }
+         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Height, (scalar, unit.into(),)) }
       }; self
    }
 
@@ -354,20 +361,22 @@ impl Component {
    }
 
    ///Add a TranslateX Modifier to this Component
-   pub fn translate_x(mut self, scalar: f64, unit: ViewUnit) -> Component {
+   pub fn translate_x<T>(mut self, scalar: f64, unit: T) -> Component
+      where T: Into<ViewUnit> {
       match self {
-         Component::Text(ref mut m) => { push_modifier!(m.modifiers, TranslateX, (scalar, unit,)) }
-         Component::Image(ref mut m) => { push_modifier!(m.modifiers, TranslateX, (scalar, unit,)) }
-         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, TranslateX, (scalar, unit,)) }
+         Component::Text(ref mut m) => { push_modifier!(m.modifiers, TranslateX, (scalar, unit.into(),)) }
+         Component::Image(ref mut m) => { push_modifier!(m.modifiers, TranslateX, (scalar, unit.into(),)) }
+         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, TranslateX, (scalar, unit.into(),)) }
       }; self
    }
 
    ///Add a TranslateY Modifier to this Component
-   pub fn translate_y(mut self, scalar: f64, unit: ViewUnit) -> Component {
+   pub fn translate_y<T>(mut self, scalar: f64, unit: T) -> Component
+      where T: Into<ViewUnit> {
       match self {
-         Component::Text(ref mut m) => { push_modifier!(m.modifiers, TranslateY, (scalar, unit,)) }
-         Component::Image(ref mut m) => { push_modifier!(m.modifiers, TranslateY, (scalar, unit,)) }
-         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, TranslateY, (scalar, unit,)) }
+         Component::Text(ref mut m) => { push_modifier!(m.modifiers, TranslateY, (scalar, unit.into(),)) }
+         Component::Image(ref mut m) => { push_modifier!(m.modifiers, TranslateY, (scalar, unit.into(),)) }
+         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, TranslateY, (scalar, unit.into(),)) }
       }; self
    }
 
@@ -381,11 +390,12 @@ impl Component {
    }
 
    ///Add a Scale Modifier to this Component
-   pub fn scale(mut self, scalar: f64, unit: ViewUnit) -> Component {
+   pub fn scale<T>(mut self, scalar: f64, unit: T) -> Component
+      where T: Into<ViewUnit> {
       match self {
-         Component::Text(ref mut m) => { push_modifier!(m.modifiers, Scale, (scalar, unit,)) }
-         Component::Image(ref mut m) => { push_modifier!(m.modifiers, Scale, (scalar, unit,)) }
-         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Scale, (scalar, unit,)) }
+         Component::Text(ref mut m) => { push_modifier!(m.modifiers, Scale, (scalar, unit.into(),)) }
+         Component::Image(ref mut m) => { push_modifier!(m.modifiers, Scale, (scalar, unit.into(),)) }
+         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Scale, (scalar, unit.into(),)) }
       }; self
    }
 
@@ -398,11 +408,12 @@ impl Component {
    }
 
    ///Add a Border Modifier to this Component
-   pub fn border(mut self, clr: [f64; 4], scalar: f64, unit: ViewUnit) -> Component {
+   pub fn border<T>(mut self, clr: [f64; 4], scalar: f64, unit: T) -> Component
+      where T: Into<ViewUnit> {
       match self {
-         Component::Text(ref mut m) => { push_modifier!(m.modifiers, Border, (clr, scalar, unit,)) }
-         Component::Image(ref mut m) => { push_modifier!(m.modifiers, Border, (clr, scalar, unit,)) }
-         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Border, (clr, scalar, unit,)) }
+         Component::Text(ref mut m) => { push_modifier!(m.modifiers, Border, (clr, scalar, unit.into(),)) }
+         Component::Image(ref mut m) => { push_modifier!(m.modifiers, Border, (clr, scalar, unit.into(),)) }
+         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Border, (clr, scalar, unit.into(),)) }
       }; self
    }
 
@@ -443,59 +454,6 @@ impl Component {
          Component::Image(ref mut m) => { push_event!(m.events, Always, f); }
          Component::Rectangle(ref mut m) => { push_event!(m.events, Always, f); }
       }; self
-   }
-}
-
-///Provide str shorthand for units
-trait ShorthandComponent {
-   ///Add a Width Modifier to this Component
-   fn width(self, scalar: f64, unit: &str) -> Self;
-
-   ///Add a height Modifier to this Component   
-   fn height(self, scalar: f64, unit: &str) -> Self;
-
-   ///Add a TranslateX Modifier to this Component
-   fn translate_x(self, scalar: f64, unit: &str) -> Self;
-
-   ///Add a TranslateY Modifier to this Component
-   fn translate_y(self, scalar: f64, unit: &str) -> Self;
-
-   ///Add a Scale Modifier to this Component
-   fn scale(self, scalar: f64, unit: &str) -> Self;
-
-   ///Add a Border Modifier to this Component
-   fn border(self, clr: [f64; 4], scalar: f64, unit: &str) -> Self;
-}
-
-impl ShorthandComponent for Component {
-   ///Add a Width Modifier to this Component
-   fn width(mut self, scalar: f64, unit: &str) -> Self {
-      self.width(scalar, ViewUnit::new(unit))
-   }
-
-   ///Add a height Modifier to this Component   
-   fn height(mut self, scalar: f64, unit: &str) -> Self {
-      self.height(scalar, ViewUnit::new(unit))
-   }
-
-   ///Add a TranslateX Modifier to this Component
-   fn translate_x(mut self, scalar: f64, unit: &str) -> Self {
-      self.translate_x(scalar, ViewUnit::new(unit))
-   }
-
-   ///Add a TranslateY Modifier to this Component
-   fn translate_y(mut self, scalar: f64, unit: &str) -> Self {
-      self.translate_y(scalar, ViewUnit::new(unit))
-   }
-
-   ///Add a Scale Modifier to this Component
-   fn scale(mut self, scalar: f64, unit: &str) -> Self {
-      self.scale(scalar, ViewUnit::new(unit))
-   }
-
-   ///Add a Border Modifier to this Component
-   fn border(self, clr: [f64; 4], scalar: f64, unit: &str) -> Self {
-      self.border(clr, scalar, ViewUnit::new(unit))
    }
 }
 
