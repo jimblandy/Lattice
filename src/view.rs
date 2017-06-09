@@ -52,6 +52,40 @@ impl<'a> Into<ViewUnit> for &'a str {
     }
 }
 
+#[derive(Debug)]
+/// A typesafe unit for component alignment in containers
+pub enum AlignUnit {
+   ///Left
+   Left,
+
+   ///Center
+   Center,
+
+   ///Right
+   Right,
+
+   ///Justify
+   Justify,
+}
+impl AlignUnit {
+   /// Convert a raw string to AlignUnit
+   pub fn new(s: &str) -> AlignUnit {
+      match s {
+         "left" => { AlignUnit::Left }
+         "center" => { AlignUnit::Left }
+         "right" => { AlignUnit::Left }
+         "justify" => { AlignUnit::Left }
+         u => { panic!("Invalid Align Unit: {}", u) }
+      }
+   }
+}
+impl<'a> Into<AlignUnit> for &'a str {
+    fn into(self) -> AlignUnit {
+       AlignUnit::new(self)
+    }
+}
+
+
 /// A Modifier to define the width of a Component
 pub struct Width {
    ///scalar
@@ -226,7 +260,7 @@ pub struct Text {
    pub font: String,
 
    ///Text Alignment
-   pub align: String,
+   pub align: AlignUnit,
 
    ///Component Modifiers
    pub modifiers: Vec<Modifier>,
@@ -238,7 +272,7 @@ impl Text {
    ///Create a new Text Component
    pub fn new(font: &str, cs: &str) -> Component {
       Component::Text(Text { font:font.to_owned(), content: cs.to_owned(),
-                             align: "left".to_owned(), modifiers:Vec::new(), events:Vec::new() })
+                             align: AlignUnit::Left, modifiers:Vec::new(), events:Vec::new() })
    }
 }
 
@@ -400,9 +434,10 @@ impl Component {
    }
 
    ///Add an Align Modifier to this Component
-   pub fn align(mut self, align: &str) -> Component {
+   pub fn align<T>(mut self, align: T) -> Component
+      where T: Into<AlignUnit> {
       match self {
-         Component::Text(ref mut m) => { m.align = align.to_owned(); }
+         Component::Text(ref mut m) => { m.align = align.into(); }
          _ => {}
       }; self
    }

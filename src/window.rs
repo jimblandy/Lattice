@@ -1,5 +1,5 @@
 use ::events::{Events};
-use ::view::{View, Component, Modifier, ViewUnit};
+use ::view::{View, Component, Modifier, ViewUnit, AlignUnit};
 
 extern crate time;
 
@@ -373,7 +373,9 @@ impl Window {
                         result.push( (caret, height, c, line_height, glyph_width) );
                         caret += glyph_width;
                      }
-                     if text.align.as_str() == "justify" {
+                     match text.align {
+                     AlignUnit::Left => {}
+                     AlignUnit::Justify => {
                         let just_width = width;
                         let mut prev_line = 0;
                         for ri in 0..(result.len()+1) {
@@ -396,7 +398,8 @@ impl Window {
                               prev_line = ri;
                            }
                         }
-                     } else if text.align.as_str() == "center" {
+                     }
+                     AlignUnit::Center => {
                         let just_width = width;
                         let mut prev_line = 0;
                         for ri in 0..(result.len()+1) {
@@ -417,7 +420,8 @@ impl Window {
                               prev_line = ri;
                            }
                         }
-                     } else if text.align.as_str() == "right" {
+                     } 
+                     AlignUnit::Right => {
                         let just_width = width;
                         let mut prev_line = 0;
                         for ri in 0..(result.len()+1) {
@@ -438,7 +442,7 @@ impl Window {
                               prev_line = ri;
                            }
                         }
-                     }
+                     }}
                      result
                   };
 
