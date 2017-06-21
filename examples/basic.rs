@@ -19,7 +19,8 @@ fn main() {
        v.append(i);
        let mut i = Image::new("assets/handcloth.png")
                   .height(40.0, "%")
-                  .width(40.0, "%");
+                  .width(40.0, "%")
+                  .rotate(40.0, "degree");
        v.append(i);
        v
     });

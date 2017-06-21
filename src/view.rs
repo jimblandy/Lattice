@@ -86,6 +86,36 @@ impl<'a> Into<AlignUnit> for &'a str {
 }
 
 
+#[derive(Debug)]
+/// A typesafe unit for Angle units
+pub enum AngleUnit {
+   ///Degree
+   Degree,
+
+   ///Radian
+   Radian,
+
+   ///Hour
+   Hour,
+}
+impl AngleUnit {
+   /// Convert a raw string to AngleUnit
+   pub fn new(s: &str) -> AngleUnit {
+      match s {
+         "degree" => { AngleUnit::Degree }
+         "radian" => { AngleUnit::Radian }
+         "hour" => { AngleUnit::Hour }
+         u => { panic!("Invalid Angle Unit: {}", u) }
+      }
+   }
+}
+impl<'a> Into<AngleUnit> for &'a str {
+    fn into(self) -> AngleUnit {
+       AngleUnit::new(self)
+    }
+}
+
+
 /// A Modifier to define the width of a Component
 pub struct Width {
    ///scalar
@@ -113,6 +143,21 @@ impl Height {
    ///Create a new Height Modifier
    pub fn new(scalar: f64, unit: ViewUnit) -> Modifier {
       Modifier::Height(Height { scalar:scalar, unit:unit })
+   }
+}
+
+/// A Modifier to define the angle of a Component
+pub struct Angle {
+   ///scalar
+   pub scalar: f64,
+
+   ///unit
+   pub unit: AngleUnit,
+}
+impl Angle {
+   ///Create a new Angle Modifier
+   pub fn new(scalar: f64, unit: AngleUnit) -> Modifier {
+      Modifier::Angle(Angle { scalar:scalar, unit:unit })
    }
 }
 
@@ -385,6 +430,16 @@ impl Component {
       }; self
    }
 
+   ///Add an Angle Modifier to this Component
+   pub fn rotate<T>(mut self, scalar: f64, unit: T) -> Component
+      where T: Into<AngleUnit> {
+      match self {
+         Component::Text(ref mut m) => { push_modifier!(m.modifiers, Angle, (scalar, unit.into(),)) }
+         Component::Image(ref mut m) => { push_modifier!(m.modifiers, Angle, (scalar, unit.into(),)) }
+         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Angle, (scalar, unit.into(),)) }
+      }; self
+   }
+
    ///Add a Center of Gravity Modifier to this Component
    pub fn cog(mut self, x: f64, y: f64) -> Component {
       match self {
@@ -533,6 +588,9 @@ pub enum Modifier {
 
    ///Modifier::Height
    Height(Height),
+
+   ///Modifier::Angle
+   Angle(Angle),
 
    ///Modifier::Shadow
    Shadow(Shadow),

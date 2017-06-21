@@ -1,5 +1,5 @@
 use ::events::{Events};
-use ::view::{View, Component, Modifier, ViewUnit, AlignUnit};
+use ::view::{View, Component, Modifier, ViewUnit, AlignUnit, AngleUnit };
 
 extern crate time;
 
@@ -20,6 +20,8 @@ use self::sdl2::render::{Texture, BlendMode};
 extern crate image;
 use self::image::*;
 use std::collections::{HashMap};
+
+use std::f64::consts::{PI};
 
 ///A configurable window
 pub struct Window {
@@ -152,6 +154,7 @@ impl Window {
                let mut shadow = ([0,0,0,0],[0.0,0.0,0.0,0.0]);
                let mut border_width = 0;
                let mut border_color = [0.0, 0.0, 0.0, 0.0];
+               let mut radians = 0.0;
 
                for m in c.modifiers() {
                   match *m {
@@ -199,6 +202,13 @@ impl Window {
                           ViewUnit::MinPercent => { let pct = if height_pct<width_pct { height_pct } else { width_pct }; width = (pct * s.scalar).ceil() as usize; }
                           ViewUnit::Pixel => { width = (s.scalar) as usize; }
                           ref u => { panic!("Invalid unit for width: {:?}", u) }
+                        }
+                     }
+                     Modifier::Angle(ref s) => {
+                        match s.unit {
+                          AngleUnit::Degree => { radians = (s.scalar / 360.0) * (2.0 * PI); } 
+                          AngleUnit::Radian => { radians = s.scalar; }
+                          AngleUnit::Hour => { radians = (s.scalar / 12.0) * (2.0 * PI); }
                         }
                      }
                      Modifier::Height(ref s) => {
