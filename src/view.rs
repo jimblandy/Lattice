@@ -9,25 +9,25 @@ pub enum ViewUnit {
    ///em
    Em,
 
-   ///Axis Percent
+   ///Axis Percent: %
    Percent,
 
-   ///Horizontal Percent
+   ///Horizontal Percent: h%
    HorizontalPercent,
 
-   ///Vertical Percent
+   ///Vertical Percent: v%
    VerticalPercent,
 
-   ///min(Vertical,Horizontal) Percent
+   ///min(Vertical,Horizontal) Percent: <%
    MinPercent,
 
-   ///max(Vertical,Horizontal) Percent
+   ///max(Vertical,Horizontal) Percent: >%
    MaxPercent,
 
-   ///Centered in Container
+   ///Centered in Container: =
    Center,
 
-   ///Pixel
+   ///Pixel: px
    Pixel,
 }
 impl ViewUnit {
@@ -55,16 +55,16 @@ impl<'a> Into<ViewUnit> for &'a str {
 #[derive(Debug)]
 /// A typesafe unit for component alignment in containers
 pub enum AlignUnit {
-   ///Left
+   ///left
    Left,
 
-   ///Center
+   ///center
    Center,
 
-   ///Right
+   ///right
    Right,
 
-   ///Justify
+   ///justify
    Justify,
 }
 impl AlignUnit {
@@ -89,13 +89,13 @@ impl<'a> Into<AlignUnit> for &'a str {
 #[derive(Debug)]
 /// A typesafe unit for Angle units
 pub enum AngleUnit {
-   ///Degree
+   ///degree
    Degree,
 
-   ///Radian
+   ///radian
    Radian,
 
-   ///Hour
+   ///hour
    Hour,
 }
 impl AngleUnit {
