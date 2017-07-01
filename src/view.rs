@@ -72,9 +72,9 @@ impl AlignUnit {
    pub fn new(s: &str) -> AlignUnit {
       match s {
          "left" => { AlignUnit::Left }
-         "center" => { AlignUnit::Left }
-         "right" => { AlignUnit::Left }
-         "justify" => { AlignUnit::Left }
+         "center" => { AlignUnit::Center }
+         "right" => { AlignUnit::Right }
+         "justify" => { AlignUnit::Justify }
          u => { panic!("Invalid Align Unit: {}", u) }
       }
    }
