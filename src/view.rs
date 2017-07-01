@@ -331,10 +331,11 @@ pub struct Rectangle {
 }
 impl Rectangle {
    ///Create a new Rectangle Component
-   pub fn new(w: f64, wunit: ViewUnit, h: f64, hunit: ViewUnit) -> Component {
+   pub fn new<T>(w: f64, wunit: T, h: f64, hunit: T) -> Component
+      where T: Into<ViewUnit> {
       Component::Rectangle(Rectangle { modifiers:Vec::new(), events:Vec::new() })
-      .width(w, wunit)
-      .height(h, hunit)
+      .width(w, wunit.into())
+      .height(h, hunit.into())
    }
 }
 
