@@ -361,21 +361,6 @@ macro_rules! push_event {
 }
 macro_rules! push_modifier {
    ($base: expr, $cls: ident, ( $($arg:expr ,)* ) ) => {{
-      let ref mut m = $base;
-      loop {
-         let mut found = false;
-         for mi in 0..m.len() {
-            match m[mi] {
-               Modifier::$cls(_) => {
-                  m.remove(mi);
-                  found = true;
-                  break;
-               }
-               _ => {}
-            }
-         }
-         if !found { break; }
-      }
       m.push( $cls::new( $($arg),* ) );
    }}
 }
