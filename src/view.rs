@@ -361,6 +361,7 @@ macro_rules! push_event {
 }
 macro_rules! push_modifier {
    ($base: expr, $cls: ident, ( $($arg:expr ,)* ) ) => {{
+      let ref mut m = $base;
       m.push( $cls::new( $($arg),* ) );
    }}
 }
