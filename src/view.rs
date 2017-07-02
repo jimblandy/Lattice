@@ -342,20 +342,6 @@ impl Rectangle {
 macro_rules! push_event {
    ($base: expr, $cls: ident, $fnx: ident) => {{
       let ref mut m = $base;
-      loop {
-         let mut found = false;
-         for mi in 0..m.len() {
-            match m[mi].0 {
-               Event::$cls => {
-                  m.remove(mi);
-                  found = true;
-                  break;
-               }
-               _ => {}
-            }
-         }
-         if !found { break; }
-      }
       m.push( (Event::$cls, Rc::new(RefCell::new($fnx))) );
    }};
 }

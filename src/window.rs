@@ -228,26 +228,26 @@ impl Window {
                      }
                      Modifier::TranslateX(ref s) => {
                         match s.unit {
-                          ViewUnit::Em => { pos_x = (em * s.scalar).ceil() as usize; }
-                          ViewUnit::Percent => { pos_x = (width_pct * s.scalar).ceil() as usize; }
-                          ViewUnit::HorizontalPercent => { pos_x = (width_pct * s.scalar).ceil() as usize; }
-                          ViewUnit::VerticalPercent => { pos_x = (height_pct * s.scalar).ceil() as usize; }
-                          ViewUnit::MaxPercent => { let pct = if height_pct>width_pct { height_pct } else { width_pct }; pos_x = (pct * s.scalar).ceil() as usize; }
-                          ViewUnit::MinPercent => { let pct = if height_pct<width_pct { height_pct } else { width_pct }; pos_x = (pct * s.scalar).ceil() as usize; }
+                          ViewUnit::Em => { pos_x += (em * s.scalar).ceil() as usize; }
+                          ViewUnit::Percent => { pos_x += (width_pct * s.scalar).ceil() as usize; }
+                          ViewUnit::HorizontalPercent => { pos_x += (width_pct * s.scalar).ceil() as usize; }
+                          ViewUnit::VerticalPercent => { pos_x += (height_pct * s.scalar).ceil() as usize; }
+                          ViewUnit::MaxPercent => { let pct = if height_pct>width_pct { height_pct } else { width_pct }; pos_x += (pct * s.scalar).ceil() as usize; }
+                          ViewUnit::MinPercent => { let pct = if height_pct<width_pct { height_pct } else { width_pct }; pos_x += (pct * s.scalar).ceil() as usize; }
                           ViewUnit::Center => { }
-                          ViewUnit::Pixel => { pos_x = (s.scalar) as usize; }
+                          ViewUnit::Pixel => { pos_x += (s.scalar) as usize; }
                         }
                      }
                      Modifier::TranslateY(ref s) => {
                         match s.unit {
-                          ViewUnit::Em => { pos_y = (em * s.scalar).ceil() as usize; }
-                          ViewUnit::Percent => { pos_y = (height_pct * s.scalar).ceil() as usize; }
-                          ViewUnit::HorizontalPercent => { pos_y = (width_pct * s.scalar).ceil() as usize; }
-                          ViewUnit::VerticalPercent => { pos_y = (height_pct * s.scalar).ceil() as usize; }
-                          ViewUnit::MaxPercent => { let pct = if height_pct>width_pct { height_pct } else { width_pct }; pos_y = (pct * s.scalar).ceil() as usize; }
-                          ViewUnit::MinPercent => { let pct = if height_pct<width_pct { height_pct } else { width_pct }; pos_y = (pct * s.scalar).ceil() as usize; }
+                          ViewUnit::Em => { pos_y += (em * s.scalar).ceil() as usize; }
+                          ViewUnit::Percent => { pos_y += (height_pct * s.scalar).ceil() as usize; }
+                          ViewUnit::HorizontalPercent => { pos_y += (width_pct * s.scalar).ceil() as usize; }
+                          ViewUnit::VerticalPercent => { pos_y += (height_pct * s.scalar).ceil() as usize; }
+                          ViewUnit::MaxPercent => { let pct = if height_pct>width_pct { height_pct } else { width_pct }; pos_y += (pct * s.scalar).ceil() as usize; }
+                          ViewUnit::MinPercent => { let pct = if height_pct<width_pct { height_pct } else { width_pct }; pos_y += (pct * s.scalar).ceil() as usize; }
                           ViewUnit::Center => { }
-                          ViewUnit::Pixel => { pos_y = (s.scalar) as usize; }
+                          ViewUnit::Pixel => { pos_y += (s.scalar) as usize; }
                         }
                      }
                   }
@@ -256,13 +256,13 @@ impl Window {
                   match *m {
                      Modifier::TranslateX(ref t) => {
                         match t.unit {
-                          ViewUnit::Center => { pos_x = (((width_px - width) as f64)*0.5).ceil() as usize; }
+                          ViewUnit::Center => { pos_x += (((width_px - width) as f64)*0.5).ceil() as usize; }
                           _ => { }
                         }
                      }
                      Modifier::TranslateY(ref t) => {
                         match t.unit {
-                          ViewUnit::Center => { pos_y = (((height_px - height) as f64)*0.5).ceil() as usize; }
+                          ViewUnit::Center => { pos_y += (((height_px - height) as f64)*0.5).ceil() as usize; }
                           _ => { }
                         }
                      }
