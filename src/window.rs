@@ -139,8 +139,18 @@ impl Window {
          canvas.set_draw_color(Color::RGB(0, 0, 0));
          canvas.clear();
 
-         for ci in 0..v.components.len() {
+         'next_component: for ci in 0..v.components.len() {
             let ref mut c = v.components[ci];
+
+            loop {
+               match *c {
+                  Component::Conditional(ref cnd) => {
+                     println!("TODO conditional component"); 
+                     continue 'next_component;
+                  }
+                  _ => { break; }
+               }
+            }
 
             let bbox: (usize,usize,usize,usize) = {
 
@@ -283,7 +293,7 @@ impl Window {
 
             match *c {
                Component::Conditional(_) => {
-                  panic!("implement Component::Conditional rendering")
+                  panic!("Component::Conditional should be removed prior to Component rendering")
                }
                Component::Rectangle(_) => {
                   let clr = Color::RGBA((color[0]*255.0) as u8,
