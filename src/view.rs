@@ -309,6 +309,21 @@ impl Text {
    }
 }
 
+/// A Component to describe Conditions of what to render
+pub struct Conditional {
+   key: String,
+   val: String,
+   guarded: Rc<Component>
+}
+impl Conditional {
+   ///Create a new Text Component
+   pub fn new(key: &str, val: &str, guarded: Component) -> Component {
+      Component::Conditional(Conditional { key:key.to_owned(), val:val.to_owned(),
+                                           guarded: Rc::new(guarded) })
+   }
+}
+
+
 /// A Component to describe a Rectangle to be rendered
 pub struct Rectangle {
    ///Component Modifiers
@@ -350,6 +365,9 @@ pub enum Component {
 
    ///Component::Rectangle
    Rectangle(Rectangle),
+
+   ///Component::Conditional
+   Conditional(Conditional),
 }
 impl Component {
 
@@ -359,6 +377,7 @@ impl Component {
          Component::Text(ref m) => { m.modifiers.iter() }
          Component::Image(ref m) => { m.modifiers.iter() }
          Component::Rectangle(ref m) => { m.modifiers.iter() }
+         Component::Conditional(_) => { [].iter() }
       }
    }
 
@@ -369,6 +388,7 @@ impl Component {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, Width, (scalar, unit.into(),)) }
          Component::Image(ref mut m) => { push_modifier!(m.modifiers, Width, (scalar, unit.into(),)) }
          Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Width, (scalar, unit.into(),)) }
+         Component::Conditional(_) => { panic!("Component::Conditional does not support modifiers") }
       }; self
    }
 
@@ -379,6 +399,7 @@ impl Component {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, Height, (scalar, unit.into(),)) }
          Component::Image(ref mut m) => { push_modifier!(m.modifiers, Height, (scalar, unit.into(),)) }
          Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Height, (scalar, unit.into(),)) }
+         Component::Conditional(_) => { panic!("Component::Conditional does not support modifiers") }
       }; self
    }
 
@@ -389,6 +410,7 @@ impl Component {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, Angle, (scalar, unit.into(),)) }
          Component::Image(ref mut m) => { push_modifier!(m.modifiers, Angle, (scalar, unit.into(),)) }
          Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Angle, (scalar, unit.into(),)) }
+         Component::Conditional(_) => { panic!("Component::Conditional does not support modifiers") }
       }; self
    }
 
@@ -398,6 +420,7 @@ impl Component {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, CenterOfGravity, (x, y,)) }
          Component::Image(ref mut m) => { push_modifier!(m.modifiers, CenterOfGravity, (x, y,)) }
          Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, CenterOfGravity, (x, y,)) }
+         Component::Conditional(_) => { panic!("Component::Conditional does not support modifiers") }
       }; self
    }
 
@@ -408,6 +431,7 @@ impl Component {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, TranslateX, (scalar, unit.into(),)) }
          Component::Image(ref mut m) => { push_modifier!(m.modifiers, TranslateX, (scalar, unit.into(),)) }
          Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, TranslateX, (scalar, unit.into(),)) }
+         Component::Conditional(_) => { panic!("Component::Conditional does not support modifiers") }
       }; self
    }
 
@@ -418,6 +442,7 @@ impl Component {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, TranslateY, (scalar, unit.into(),)) }
          Component::Image(ref mut m) => { push_modifier!(m.modifiers, TranslateY, (scalar, unit.into(),)) }
          Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, TranslateY, (scalar, unit.into(),)) }
+         Component::Conditional(_) => { panic!("Component::Conditional does not support modifiers") }
       }; self
    }
 
@@ -427,6 +452,7 @@ impl Component {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, Color, (rgba,)) }
          Component::Image(ref mut m) => { push_modifier!(m.modifiers, Color, (rgba,)) }
          Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Color, (rgba,)) }
+         Component::Conditional(_) => { panic!("Component::Conditional does not support modifiers") }
       }; self
    }
 
@@ -437,6 +463,7 @@ impl Component {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, Scale, (scalar, unit.into(),)) }
          Component::Image(ref mut m) => { push_modifier!(m.modifiers, Scale, (scalar, unit.into(),)) }
          Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Scale, (scalar, unit.into(),)) }
+         Component::Conditional(_) => { panic!("Component::Conditional does not support modifiers") }
       }; self
    }
 
@@ -445,6 +472,7 @@ impl Component {
       where T: Into<AlignUnit> {
       match self {
          Component::Text(ref mut m) => { m.align = align.into(); }
+         Component::Conditional(_) => { panic!("Component::Conditional does not support modifiers") }
          _ => {}
       }; self
    }
@@ -456,6 +484,7 @@ impl Component {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, Border, (clr, scalar, unit.into(),)) }
          Component::Image(ref mut m) => { push_modifier!(m.modifiers, Border, (clr, scalar, unit.into(),)) }
          Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Border, (clr, scalar, unit.into(),)) }
+         Component::Conditional(_) => { panic!("Component::Conditional does not support modifiers") }
       }; self
    }
 
@@ -465,6 +494,7 @@ impl Component {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, Shadow, (d, c,)) }
          Component::Image(ref mut m) => { push_modifier!(m.modifiers, Shadow, (d, c,)) }
          Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, Shadow, (d, c,)) }
+         Component::Conditional(_) => { panic!("Component::Conditional does not support modifiers") }
       }; self
    }
 
@@ -475,6 +505,7 @@ impl Component {
          Component::Text(ref mut m) => { push_event!(m.events, Clicked, f); }
          Component::Image(ref mut m) => { push_event!(m.events, Clicked, f); }
          Component::Rectangle(ref mut m) => { push_event!(m.events, Clicked, f); }
+         Component::Conditional(_) => { panic!("Component::Conditional does not support modifiers") }
       }; self
    }
 
@@ -485,6 +516,7 @@ impl Component {
          Component::Text(ref mut m) => { push_event!(m.events, Hovered, f); }
          Component::Image(ref mut m) => { push_event!(m.events, Hovered, f); }
          Component::Rectangle(ref mut m) => { push_event!(m.events, Hovered, f); }
+         Component::Conditional(_) => { panic!("Component::Conditional does not support modifiers") }
       }; self
    }
 
@@ -495,6 +527,7 @@ impl Component {
          Component::Text(ref mut m) => { push_event!(m.events, Always, f); }
          Component::Image(ref mut m) => { push_event!(m.events, Always, f); }
          Component::Rectangle(ref mut m) => { push_event!(m.events, Always, f); }
+         Component::Conditional(_) => { panic!("Component::Conditional does not support modifiers") }
       }; self
    }
 }
@@ -560,6 +593,11 @@ impl View {
    ///Put a Component onto the render queue
    pub fn append(&mut self, c: Component) -> &mut View {
       self.components.push( c );
+      self
+   }
+   ///Put a Component onto the render queue
+   pub fn ifappend(&mut self, key: &str, val: &str, c: Component) -> &mut View {
+      self.components.push( Conditional::new(key, val, c) );
       self
    }
 }

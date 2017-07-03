@@ -282,6 +282,9 @@ impl Window {
             }
 
             match *c {
+               Component::Conditional(_) => {
+                  panic!("implement Component::Conditional rendering")
+               }
                Component::Rectangle(_) => {
                   let clr = Color::RGBA((color[0]*255.0) as u8,
                                         (color[1]*255.0) as u8,
@@ -485,6 +488,7 @@ impl Window {
                Component::Text(ref mut m) => { let mut v = Vec::new(); v.extend(m.events.iter().cloned()); v }
                Component::Image(ref mut m) => { let mut v = Vec::new(); v.extend(m.events.iter().cloned()); v }
                Component::Rectangle(ref mut m) => { let mut v = Vec::new(); v.extend(m.events.iter().cloned()); v }
+               Component::Conditional(_) => { Vec::new() }
             };
             for ev in evs {
                match ev {
