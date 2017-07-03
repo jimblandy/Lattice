@@ -145,8 +145,13 @@ impl Window {
             loop {
                match *c {
                   Component::Conditional(ref cnd) => {
-                     println!("TODO conditional component"); 
-                     continue 'next_component;
+                     if events.get(cnd.key.as_str()) == cnd.val {
+                        //cnd.guarded :: Rc<Component>
+                        println!("TODO: Conditional Component is active"); 
+                        break;
+                     } else {
+                        continue 'next_component;
+                     }
                   }
                   _ => { break; }
                }

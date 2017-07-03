@@ -29,7 +29,7 @@ impl Events {
       self.state.insert(key.to_string(), val.to_string());
    }
    ///Get a state variable
-   pub fn get(&mut self, key: &str) -> &str {
-      ""
+   pub fn get(&mut self, key: &str) -> String {
+      self.state.get(&key.to_string()).unwrap_or(&"".to_string()).clone()
    }
 }

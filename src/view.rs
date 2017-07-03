@@ -311,9 +311,14 @@ impl Text {
 
 /// A Component to describe Conditions of what to render
 pub struct Conditional {
-   key: String,
-   val: String,
-   guarded: Rc<Component>
+   ///Key to bind conditional value to
+   pub key: String,
+
+   ///Value bound to conditional objects
+   pub val: String,
+
+   ///Guarded Component
+   pub guarded: Rc<Component>
 }
 impl Conditional {
    ///Create a new Text Component
