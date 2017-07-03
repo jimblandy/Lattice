@@ -9,16 +9,16 @@ fn main() {
     with_assets!(w);
     w.start(|events| {
        let mut v = View::new();
-       let mut i = Image::new("assets/background.png")
+       v.append(Image::new("assets/background.png")
+                  .always(|e|{ e.set("a","b") })
                   .height(100.0, "%")
-                  .width(100.0, "%");
-       v.append(i);
-       let mut i = Image::new("assets/handcloth.png")
+                  .width(100.0, "%"));
+       
+       v.ifappend("a","b",Image::new("assets/handcloth.png")
                   .translate_x(25.0, "h%")
                   .translate_x(25.0, "h%")
                   .height(20.0, "%")
-                  .width(20.0, "%");
-       v.append(i);
+                  .width(20.0, "%"));
        v
     });
 }

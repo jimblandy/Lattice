@@ -158,9 +158,6 @@ impl Window {
 
                for m in c.modifiers() {
                   match *m {
-                     Modifier::State(ref s) => {
-                        events.state = s.state.clone();
-                     }
                      Modifier::Shadow(ref s) => {
                         shadow = (s.boxed.clone(), s.rgba.clone());
                      }

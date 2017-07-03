@@ -233,18 +233,6 @@ impl Color {
    }
 }
 
-/// A Modifier to define the View-Bound State of a Component
-pub struct State {
-   ///state
-   pub state: String
-}
-impl State {
-   ///Create a new State Modifier
-   pub fn new(state: &str) -> Modifier {
-      Modifier::State(State { state:state.to_owned() })
-   }
-}
-
 /// A Modifier to define the Border of a Component
 pub struct Border {
    ///rgba
@@ -372,15 +360,6 @@ impl Component {
          Component::Image(ref m) => { m.modifiers.iter() }
          Component::Rectangle(ref m) => { m.modifiers.iter() }
       }
-   }
-
-   ///Add a State Modifier to this Component
-   pub fn state(mut self, state: &str) -> Component {
-      match self {
-         Component::Text(ref mut m) => { push_modifier!(m.modifiers, State, (state,)) }
-         Component::Image(ref mut m) => { push_modifier!(m.modifiers, State, (state,)) }
-         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, State, (state,)) }
-      }; self
    }
 
    ///Add a Width Modifier to this Component
@@ -535,9 +514,6 @@ pub enum Event {
 
 ///Modifiers adjust the rendering qualities of Components
 pub enum Modifier {
-   ///Modifier::State
-   State(State),
-
    ///Modifier::Color
    Color(Color),
 
