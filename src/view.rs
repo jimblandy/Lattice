@@ -495,7 +495,16 @@ impl Component {
       }; self
    }
 
-   ///Add a Guard Modifier to this Component
+   ///Add a State Modifier to this Component
+   pub fn state(mut self, val: &str) -> Component {
+      match self {
+         Component::Text(ref mut m) => { push_modifier!(m.modifiers, State, (val,)); }
+         Component::Image(ref mut m) => { push_modifier!(m.modifiers, State, (val,)); }
+         Component::Rectangle(ref mut m) => { push_modifier!(m.modifiers, State, (val,)); }
+      }; self
+   }
+
+   ///Add a Condition Modifier to this Component
    pub fn condition(mut self, key: &str, val: &str) -> Component {
       match self {
          Component::Text(ref mut m) => { push_modifier!(m.modifiers, Conditional, (key, val,)); }
