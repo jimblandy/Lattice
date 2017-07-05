@@ -20,7 +20,7 @@ use self::sdl2::render::{Texture, BlendMode};
 extern crate image;
 use self::image::*;
 use std::collections::{HashMap};
-
+use std::rc::Rc;
 use std::f64::consts::{PI};
 
 ///A configurable window
@@ -142,18 +142,10 @@ impl Window {
          'next_component: for ci in 0..v.components.len() {
             let ref mut c = v.components[ci];
 
-            loop {
-               match *c {
-                  Component::Conditional(ref cnd) => {
-                     if events.get(cnd.key.as_str()) == cnd.val {
-                        //cnd.guarded :: Rc<Component>
-                        println!("TODO: Conditional Component is active"); 
-                        break;
-                     } else {
-                        continue 'next_component;
-                     }
-                  }
-                  _ => { break; }
+            for m in c.modifiers() {
+               match *m {
+                  Modifier::Conditional(_) => { continue 'next_component }
+                  _ => { }
                }
             }
 
@@ -173,6 +165,7 @@ impl Window {
 
                for m in c.modifiers() {
                   match *m {
+                     Modifier::Conditional(_) => {}
                      Modifier::Shadow(ref s) => {
                         shadow = (s.boxed.clone(), s.rgba.clone());
                      }
@@ -297,9 +290,6 @@ impl Window {
             }
 
             match *c {
-               Component::Conditional(_) => {
-                  panic!("Component::Conditional should be removed prior to Component rendering")
-               }
                Component::Rectangle(_) => {
                   let clr = Color::RGBA((color[0]*255.0) as u8,
                                         (color[1]*255.0) as u8,
@@ -503,7 +493,6 @@ impl Window {
                Component::Text(ref mut m) => { let mut v = Vec::new(); v.extend(m.events.iter().cloned()); v }
                Component::Image(ref mut m) => { let mut v = Vec::new(); v.extend(m.events.iter().cloned()); v }
                Component::Rectangle(ref mut m) => { let mut v = Vec::new(); v.extend(m.events.iter().cloned()); v }
-               Component::Conditional(_) => { Vec::new() }
             };
             for ev in evs {
                match ev {

@@ -14,7 +14,8 @@ fn main() {
                   .height(100.0, "%")
                   .width(100.0, "%"));
        
-       v.ifappend("a","b",Image::new("assets/handcloth.png")
+       v.append(Image::new("assets/handcloth.png")
+                  .condition("a", "b")
                   .translate_x(25.0, "h%")
                   .translate_x(25.0, "h%")
                   .height(20.0, "%")
