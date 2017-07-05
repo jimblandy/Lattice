@@ -144,7 +144,11 @@ impl Window {
 
             for m in c.modifiers() {
                match *m {
-                  Modifier::Conditional(_) => { continue 'next_component }
+                  Modifier::Conditional(ref cnd) => {
+                     if events.get(cnd.key.as_str()) != cnd.val {
+                        continue 'next_component
+                     }
+                  }
                   _ => { }
                }
             }

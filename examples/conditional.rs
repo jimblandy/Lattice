@@ -16,10 +16,18 @@ fn main() {
        
        v.append(Image::new("assets/handcloth.png")
                   .condition("a", "b")
-                  .translate_x(25.0, "h%")
-                  .translate_x(25.0, "h%")
+                  .translate_x(25.0, "%")
+                  .translate_x(25.0, "%")
                   .height(20.0, "%")
                   .width(20.0, "%"));
+
+       v.append(Image::new("assets/handcloth.png")
+                  .condition("a", "c")
+                  .translate_y(25.0, "%")
+                  .translate_y(25.0, "%")
+                  .height(20.0, "%")
+                  .width(20.0, "%"));
+
        v
     });
 }
