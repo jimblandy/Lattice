@@ -6,7 +6,10 @@ pub struct Events {
    pub messages: Vec<Vec<String>>,
 
    /// Component State
-   pub state: HashMap<String,String>,
+   pub state: String,
+
+   /// Global Key-Val State
+   pub keyval: HashMap<String,String>,
 
    /// Time elapsed since program started, measured in seconds
    pub time_elapsed: f64,
@@ -16,7 +19,8 @@ impl Events {
    pub fn new() -> Events {
       Events {
          messages: Vec::new(),
-         state: HashMap::new(),
+         state: "".to_owned(),
+         keyval: HashMap::new(),
          time_elapsed: 0.0,
       }
    }
@@ -26,10 +30,10 @@ impl Events {
    }
    ///Set a state variable
    pub fn set(&mut self, key: &str, val: &str) {
-      self.state.insert(key.to_string(), val.to_string());
+      self.keyval.insert(key.to_string(), val.to_string());
    }
    ///Get a state variable
    pub fn get(&mut self, key: &str) -> String {
-      self.state.get(&key.to_string()).unwrap_or(&"".to_string()).clone()
+      self.keyval.get(&key.to_string()).unwrap_or(&"".to_string()).clone()
    }
 }

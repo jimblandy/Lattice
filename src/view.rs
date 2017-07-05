@@ -266,6 +266,18 @@ impl Shadow {
    }
 }
 
+/// A Modifier to hold state of this individual Component
+pub struct State {
+   ///Value of state
+   pub val: String,
+}
+impl State {
+   ///Create a new State Modifier
+   pub fn new(val: &str) -> Modifier {
+      Modifier::State(State { val:val.to_owned() })
+   }
+}
+
 /// A Modifier to describe Conditions of what to render
 pub struct Conditional {
    ///Key to bind conditional value to
@@ -570,6 +582,9 @@ pub enum Modifier {
 
    ///Modifier::Conditional
    Conditional(Conditional),
+
+   ///Modifier::State
+   State(State),
 }
 
 ///The render queue

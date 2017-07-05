@@ -10,6 +10,7 @@ fn main() {
     w.start(|events| {
        let mut v = View::new();
        v.append(Image::new("assets/background.png")
+                  .state("hello world")
                   .always(|e|{ e.set("a","b") })
                   .height(100.0, "%")
                   .width(100.0, "%"));
