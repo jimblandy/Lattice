@@ -158,8 +158,8 @@ impl Window {
                let mut pixel_height = em as usize;
                let mut width = width_px as usize;
                let mut height = height_px as usize;
-               let mut pos_x = 0 as usize;
-               let mut pos_y = 0 as usize;
+               let mut pos_x = 0 as i32;
+               let mut pos_y = 0 as i32;
                let mut cog: (f64,f64) = (0.0, 0.0);
                let mut color = [1.0, 1.0, 1.0, 1.0];
                let mut shadow = ([0,0,0,0],[0.0,0.0,0.0,0.0]);
@@ -240,26 +240,26 @@ impl Window {
                      }
                      Modifier::TranslateX(ref s) => {
                         match s.unit {
-                          ViewUnit::Em => { pos_x += (em * s.scalar).ceil() as usize; }
-                          ViewUnit::Percent => { pos_x += (width_pct * s.scalar).ceil() as usize; }
-                          ViewUnit::HorizontalPercent => { pos_x += (width_pct * s.scalar).ceil() as usize; }
-                          ViewUnit::VerticalPercent => { pos_x += (height_pct * s.scalar).ceil() as usize; }
-                          ViewUnit::MaxPercent => { let pct = if height_pct>width_pct { height_pct } else { width_pct }; pos_x += (pct * s.scalar).ceil() as usize; }
-                          ViewUnit::MinPercent => { let pct = if height_pct<width_pct { height_pct } else { width_pct }; pos_x += (pct * s.scalar).ceil() as usize; }
+                          ViewUnit::Em => { pos_x += (em * s.scalar).ceil() as i32; }
+                          ViewUnit::Percent => { pos_x += (width_pct * s.scalar).ceil() as i32; }
+                          ViewUnit::HorizontalPercent => { pos_x += (width_pct * s.scalar).ceil() as i32; }
+                          ViewUnit::VerticalPercent => { pos_x += (height_pct * s.scalar).ceil() as i32; }
+                          ViewUnit::MaxPercent => { let pct = if height_pct>width_pct { height_pct } else { width_pct }; pos_x += (pct * s.scalar).ceil() as i32; }
+                          ViewUnit::MinPercent => { let pct = if height_pct<width_pct { height_pct } else { width_pct }; pos_x += (pct * s.scalar).ceil() as i32; }
                           ViewUnit::Center => { }
-                          ViewUnit::Pixel => { pos_x += (s.scalar) as usize; }
+                          ViewUnit::Pixel => { pos_x += (s.scalar) as i32; }
                         }
                      }
                      Modifier::TranslateY(ref s) => {
                         match s.unit {
-                          ViewUnit::Em => { pos_y += (em * s.scalar).ceil() as usize; }
-                          ViewUnit::Percent => { pos_y += (height_pct * s.scalar).ceil() as usize; }
-                          ViewUnit::HorizontalPercent => { pos_y += (width_pct * s.scalar).ceil() as usize; }
-                          ViewUnit::VerticalPercent => { pos_y += (height_pct * s.scalar).ceil() as usize; }
-                          ViewUnit::MaxPercent => { let pct = if height_pct>width_pct { height_pct } else { width_pct }; pos_y += (pct * s.scalar).ceil() as usize; }
-                          ViewUnit::MinPercent => { let pct = if height_pct<width_pct { height_pct } else { width_pct }; pos_y += (pct * s.scalar).ceil() as usize; }
+                          ViewUnit::Em => { pos_y += (em * s.scalar).ceil() as i32; }
+                          ViewUnit::Percent => { pos_y += (height_pct * s.scalar).ceil() as i32; }
+                          ViewUnit::HorizontalPercent => { pos_y += (width_pct * s.scalar).ceil() as i32; }
+                          ViewUnit::VerticalPercent => { pos_y += (height_pct * s.scalar).ceil() as i32; }
+                          ViewUnit::MaxPercent => { let pct = if height_pct>width_pct { height_pct } else { width_pct }; pos_y += (pct * s.scalar).ceil() as i32; }
+                          ViewUnit::MinPercent => { let pct = if height_pct<width_pct { height_pct } else { width_pct }; pos_y += (pct * s.scalar).ceil() as i32; }
                           ViewUnit::Center => { }
-                          ViewUnit::Pixel => { pos_y += (s.scalar) as usize; }
+                          ViewUnit::Pixel => { pos_y += (s.scalar) as i32; }
                         }
                      }
                   }
@@ -268,13 +268,13 @@ impl Window {
                   match *m {
                      Modifier::TranslateX(ref t) => {
                         match t.unit {
-                          ViewUnit::Center => { pos_x += (((width_px - width) as f64)*0.5).ceil() as usize; }
+                          ViewUnit::Center => { pos_x += (((width_px - width) as f64)*0.5).ceil() as i32; }
                           _ => { }
                         }
                      }
                      Modifier::TranslateY(ref t) => {
                         match t.unit {
-                          ViewUnit::Center => { pos_y += (((height_px - height) as f64)*0.5).ceil() as usize; }
+                          ViewUnit::Center => { pos_y += (((height_px - height) as f64)*0.5).ceil() as i32; }
                           _ => { }
                         }
                      }
@@ -282,8 +282,8 @@ impl Window {
                   }
                }
 
-            pos_x -= (cog.0 * (width as f64)).ceil() as usize;
-            pos_y -= (cog.1 * (height as f64)).ceil() as usize;
+            pos_x -= (cog.0 * (width as f64)).ceil() as i32;
+            pos_y -= (cog.1 * (height as f64)).ceil() as i32;
 
             if border_width > 0 {
                let clr = Color::RGBA((border_color[0]*255.0) as u8,
@@ -292,7 +292,7 @@ impl Window {
                                      (border_color[3]*255.0) as u8);
 
                canvas.set_draw_color(clr);
-               canvas.fill_rect(Rect::new((pos_x-border_width) as i32, (pos_y-border_width) as i32,
+               canvas.fill_rect(Rect::new(pos_x-(border_width as i32), pos_y-(border_width as i32),
                                           (width+2*border_width) as u32, (height+2*border_width) as u32)).ok();
             }
 
@@ -305,16 +305,16 @@ impl Window {
 
 
                   canvas.set_draw_color(clr);
-                  canvas.fill_rect(Rect::new(pos_x as i32, pos_y as i32, width as u32, height as u32)).ok();
+                  canvas.fill_rect(Rect::new(pos_x, pos_y, width as u32, height as u32)).ok();
 
-                  (pos_x, pos_y, pos_x+width, pos_y+height)
+                  (pos_x as usize, pos_y as usize, (pos_x as usize)+width, (pos_y as usize)+height)
                }
                Component::Image(ref image) => {
                   let (_, _, ref texture) = *textures.get(image.name.as_str())
                                               .expect(format!("no texture named: {}", image.name).as_str());
-                  canvas.copy(texture, None, Some(Rect::new(pos_x as i32, pos_y as i32, width as u32, height as u32))).unwrap();
+                  canvas.copy(texture, None, Some(Rect::new(pos_x, pos_y, width as u32, height as u32))).unwrap();
 
-                  (pos_x, pos_y, pos_x+width, pos_y+height)
+                  (pos_x as usize, pos_y as usize, (pos_x as usize)+width, (pos_y as usize)+height)
                }
                Component::Text(ref mut text) => {
                   let font = fonts.get(text.font.as_str()).expect(format!("Could not find font: {}", text.font).as_str());
@@ -473,8 +473,8 @@ impl Window {
                   for pi in 0..positioned.len() {
                      let (caret, height, c, line_height, glyph_width) = positioned[pi];
                      let ref mut base_glyph = glyphs.get_mut(&(c,line_height)).expect("glyph").1;
-                     let x = pos_x + caret;
-                     let y = pos_y + height;
+                     let x = (pos_x as usize) + caret;
+                     let y = (pos_y as usize) + height;
                      let (shadow_box, sc) = shadow;
                      if shadow_box[0]<shadow_box[2] || shadow_box[1]<shadow_box[2] {
                         base_glyph.set_color_mod((sc[0]*255.0) as u8, (sc[1]*255.0) as u8, (sc[2]*255.0) as u8);
@@ -493,7 +493,7 @@ impl Window {
                      canvas.copy(base_glyph, None, Some(Rect::new((x as i32), (y as i32), (glyph_width as u32), (line_height as u32)))).unwrap();
                   }
 
-                  (pos_x, pos_y, max_x, max_y)
+                  (pos_x as usize, pos_y as usize, max_x, max_y)
                }
             }};
             let evs = match *c {
