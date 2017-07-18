@@ -268,7 +268,8 @@ impl Window {
                   match *m {
                      Modifier::TranslateX(ref t) => {
                         match t.unit {
-                          ViewUnit::Center => { pos_x += (((width_px - width) as f64)*0.5).ceil() as i32; }
+                          ViewUnit::Center => { pos_x += (((width_px - width) as f64)*0.5).ceil() as i32;
+                          println!("center pos_x = {}", pos_x); }
                           _ => { }
                         }
                      }
