@@ -11,7 +11,9 @@ license = "MIT"
 
 [dependencies]
 time = "0.1"
-sdl2 = "0.30"
+gfx = "0.16"
+gfx_window_glutin = "0.17.0"
+glutin = "0.9"
 image = "0.14"
 glob = "0.2"
 rusttype = "0.2"

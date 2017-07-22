@@ -1,6 +1,9 @@
 #![deny(missing_docs)]
-
 //! A Simple Window Manager for Functional Reactive Programming in Rust
+
+#[macro_use]
+extern crate gfx;
+
 
 /// Visual Components and Modifiers which are to be composed into a single render cycle
 pub mod view;
