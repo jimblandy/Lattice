@@ -19,11 +19,8 @@ use self::image::*;
 use ::events::{Events};
 use ::view::{View, Component, Modifier, ViewUnit, AlignUnit, AngleUnit };
 
-///gfx Rgba8 Color Format
-pub type ColorFormat = gfx::format::Rgba8;
-
-///gfx DepthStencil Format
-pub type DepthFormat = gfx::format::DepthStencil;
+type ColorFormat = gfx::format::Rgba8;
+type DepthFormat = gfx::format::DepthStencil;
 
 gfx_defines!{
     vertex Vertex {
@@ -38,7 +35,6 @@ gfx_defines!{
     }
 }
 
-/*
 fn load_texture<R, F>(factory: &mut F, data: &[u8])
                 -> Result<gfx::handle::ShaderResourceView<R, [f32; 4]>, String> where
                 R: gfx::Resources, F: gfx::Factory<R> {
@@ -47,10 +43,9 @@ fn load_texture<R, F>(factory: &mut F, data: &[u8])
     let img = image::load(Cursor::new(data), image::PNG).unwrap().to_rgba();
     let (width, height) = img.dimensions();
     let kind = t::Kind::D2(width as t::Size, height as t::Size, t::AaMode::Single);
-    let (_, view) = factory.create_texture_immutable_u8::<Rgba8>(kind, &[&img]).unwrap();
+    let (_, view) = factory.create_texture_immutable_u8::<ColorFormat>(kind, &[&img]).unwrap();
     Ok(view)
 }
-*/
 
 ///A configurable window
 pub struct Window {
