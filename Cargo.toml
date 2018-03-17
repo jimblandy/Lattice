@@ -14,7 +14,7 @@ time = "0.1"
 sdl2 = "0.30"
 image = "0.13"
 glob = "0.2"
-rusttype = "0.2"
+rusttype = "0.5.0"
 unicode-normalization = "0.1"
 lazy_static = "0.2"
 

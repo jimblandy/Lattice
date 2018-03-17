@@ -97,7 +97,10 @@ impl Window {
             textures.insert(name.as_str(), (dx, dy, texture));
          }
          else if ns.ends_with(".ttf") {
-            let font = FontCollection::from_bytes(buf as &[u8]).into_font().expect("single ttf font file");
+            let font = FontCollection::from_bytes(buf as &[u8])
+               .expect("failed to construct font collection from font file")
+               .into_font()
+               .expect("failed to extract font from collection");
             fonts.insert(name.as_str(), font);
          } else {
             panic!("Unrecognized asset file format: {}", ns)
