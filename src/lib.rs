@@ -1,4 +1,5 @@
 #![deny(missing_docs)]
+#![allow(non_snake_case)]
 
 //! A Simple Window Manager for Functional Reactive Programming in Rust
 

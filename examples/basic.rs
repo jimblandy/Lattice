@@ -7,20 +7,20 @@ fn main() {
     let mut w = Window::new("Premadeath")
               .set_fullscreen(true);
     with_assets!(w);
-    w.start(|events| {
+    w.start(|_events| {
        let mut v = View::new();
-       let mut i = Image::new("assets/background.png")
-                  .height(100.0, "%")
-                  .width(100.0, "%");
+       let i = Image::new("assets/background.png")
+              .height(100.0, "%")
+              .width(100.0, "%");
        v.append(i);
-       let mut i = Image::new("assets/handcloth.png")
-                  .height(20.0, "%")
-                  .width(20.0, "%");
+       let i = Image::new("assets/handcloth.png")
+              .height(20.0, "%")
+              .width(20.0, "%");
        v.append(i);
-       let mut i = Image::new("assets/handcloth.png")
-                  .height(40.0, "%")
-                  .width(40.0, "%")
-                  .rotate(40.0, "degree");
+       let i = Image::new("assets/handcloth.png")
+              .height(40.0, "%")
+              .width(40.0, "%")
+              .rotate(40.0, "degree");
        v.append(i);
        v
     });

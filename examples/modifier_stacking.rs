@@ -1,13 +1,13 @@
 #[macro_use(with_assets)]
 extern crate Lattice;
 use Lattice::window::{Window};
-use Lattice::view::{View, Image, Rectangle};
+use Lattice::view::{View, Rectangle};
 
 fn main() {
     let mut w = Window::new("Premadeath")
               .set_fullscreen(true);
     with_assets!(w);
-    w.start(|events| {
+    w.start(|_events| {
        let mut v = View::new();
 
        //A bounding box 75% of the smaller of height/width, split into 10 pieces horizontally and vertically

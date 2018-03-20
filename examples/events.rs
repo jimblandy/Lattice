@@ -2,33 +2,33 @@
 extern crate Lattice;
 use Lattice::window::{Window};
 use Lattice::view::{View, Text};
-use std::rc::Rc;
-use std::cell::{RefCell,Cell};
+use std::cell::Cell;
 use std::sync::Mutex;
 
 #[macro_use]
 extern crate lazy_static;
 
 lazy_static! {
-    static ref text_clicked: Mutex<Cell<bool>> = Mutex::new(Cell::new(false));
-    static ref left_hovered: Mutex<Cell<bool>> = Mutex::new(Cell::new(false));
+    static ref TEXT_CLICKED: Mutex<Cell<bool>> = Mutex::new(Cell::new(false));
+    static ref LEFT_HOVERED: Mutex<Cell<bool>> = Mutex::new(Cell::new(false));
 }
 
 fn main() {
     let mut w = Window::new("Premadeath").set_fullscreen(true);
     with_assets!(w);
 
-    w.start(|events| {
+    w.start(|_events| {
        let mut v = View::new();
 
-       let lh = left_hovered.lock().unwrap();
-       let tc = text_clicked.lock().unwrap();
+       let lh = LEFT_HOVERED.lock().unwrap();
+       let tc = TEXT_CLICKED.lock().unwrap();
 
        v.append(Text::new("assets/Macondo-Regular.ttf", "hover text")
                .shadow((if lh.get() {[-3,-3,3,3]} else {[0,0,0,0]}),
                        (if lh.get() {[0.8,0.8,0.8,0.8]} else {[0.0, 0.0, 0.0, 0.0]}))
-               .hovered(move |e| {
-                  let lh = left_hovered.lock().unwrap().set(true);
+               .hovered(|_e| {
+                   let lh = LEFT_HOVERED.lock().unwrap();
+                   lh.set(true);
                })
                .color([0.4, 0.4, 1.0, 1.0])
                .scale(2.0, "em")
@@ -40,8 +40,8 @@ fn main() {
        v.append(Text::new("assets/Macondo-Regular.ttf", "click text")
                .shadow((if tc.get() {[-3,-3,3,3]} else {[0,0,0,0]}),
                        (if tc.get() {[0.8,0.8,0.8,1.0]} else {[0.0,0.0,0.0,0.0]}))
-               .clicked(move |e| {
-                  let tc = text_clicked.lock().unwrap();
+               .clicked(move |_e| {
+                  let tc = TEXT_CLICKED.lock().unwrap();
                   tc.set(true);
                })
                .color([1.0, 0.4, 0.4, 1.0])

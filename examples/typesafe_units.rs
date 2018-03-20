@@ -7,7 +7,7 @@ fn main() {
     let mut w = Window::new("Premadeath")
               .set_fullscreen(true);
     with_assets!(w);
-    w.start(|events| {
+    w.start(|_events| {
        let mut v = View::new();
        v.append(Text::new("assets/Macondo-Regular.ttf", "paragraph justified paragraph justified paragraph justified paragraph justified paragraph justified
 paragraph justified paragraph justified paragraph justified paragraph justified paragraph justified paragraph justified paragraph justified paragraph justified")

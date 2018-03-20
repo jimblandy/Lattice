@@ -20,7 +20,6 @@ use self::sdl2::render::{Texture, BlendMode};
 extern crate image;
 use self::image::*;
 use std::collections::{HashMap};
-use std::rc::Rc;
 use std::f64::consts::{PI};
 
 ///A configurable window
@@ -285,6 +284,9 @@ impl Window {
 
             pos_x -= (cog.0 * (width as f64)).ceil() as i32;
             pos_y -= (cog.1 * (height as f64)).ceil() as i32;
+
+            // Rotation isn't implemented yet.
+            ::std::mem::forget(radians);
 
             if border_width > 0 {
                let clr = Color::RGBA((border_color[0]*255.0) as u8,
